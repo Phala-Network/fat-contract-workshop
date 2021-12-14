@@ -10,6 +10,7 @@ mod flipper {
     /// to add new static storage fields to your contract.
     #[ink(storage)]
     pub struct Flipper {
+        admin: AccountId,
         /// Stores a single `bool` value on the storage.
         value: bool,
     }
@@ -18,7 +19,10 @@ mod flipper {
         /// Constructor that initializes the `bool` value to the given `init_value`.
         #[ink(constructor)]
         pub fn new(init_value: bool) -> Self {
-            Self { value: init_value }
+            Self {
+                admin: Self::env().caller(),
+                value: init_value
+            }
         }
 
         /// Constructor that initializes the `bool` value to `false`.
@@ -39,8 +43,12 @@ mod flipper {
 
         /// Simply returns the current value of our `bool`.
         #[ink(message)]
-        pub fn get(&self) -> bool {
-            self.value
+        pub fn get(&self) -> Option<bool> {
+            if self.env().caller() == self.admin {
+                Some(self.value)
+            } else {
+                None
+            }
         }
     }
 
