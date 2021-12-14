@@ -170,7 +170,7 @@ We leave a challenge for you to explore the confidentiality of Phala's Fat Contr
 
 ### How is it possible?
 
-Fat Contracts are confidential by default. All the contract inputs, outputs, and the states are encrypted. The data is only decryted after arriving the [Secure Encalve](https://www.anjuna.io/what-is-a-secure-enclave) (where the contract executor runs). As a result, although you can see the transactions and storage on the blockchain, but they are just cipher text.
+Fat Contracts are confidential by default. All the contract inputs, outputs, and the states are encrypted. The data is only decryted after arriving the [Secure Encalve](https://www.anjuna.io/what-is-a-secure-enclave) (where the contract executor runs). As a result, although you can see the transactions and storage on the blockchain, they are just cipher text.
 
 So the only way to read some data from the contract is to send a **query**.
 
