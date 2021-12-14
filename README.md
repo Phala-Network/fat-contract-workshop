@@ -240,6 +240,8 @@ Indeed, it doesn't make a lot of sense to require the signature. In an ordinary 
 1. Modify the `get()` function in the Flipper contract to only return the result to the contract deployer, otherwise return an empty result
 2. Change the js-app frontend and test it with two accounts (Alice to deploy the contract, and Bob to read the contract)
 
+> Tip: After you have changed the return type of `get()` function, please don't forget to redeploy the contract, and replace the ABI in the frontend app.
+
 ### Solution
 
 Please check the `solution` branch.
