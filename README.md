@@ -189,9 +189,17 @@ Open the app in your browser. You can use it to flip the bit in the flipper cont
 
     > This step is necessary for Fat Contract Dapp because we use a certificate chain to do end-to-end encryption. Whenever you selected a new account, just sign a new certificate.
 
-4. Click "Query" to call `get()`, and read the value
-5. Click "Command" to call `flip()`
-6. After 6s, click "Query" to call `get()`. You should read a flipped value.
+4. Paste the content of `metadata.json` to the ABI text box, and enter the contract id
+
+    > Every time when you deploy a new contract, you will need to update the ABI and the contract address.
+
+5. Click "Query" to call `get()`, and read the value
+6. Click "Command" to call `flip()`
+7. After around 6s, click "Query" to call `get()`. You should read a flipped value.
+
+    > The 6s delay is due to the block finalization.
+
+![](./static/demo-ui.png)
 
 ## Challenge: "Secret" Flipper
 
