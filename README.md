@@ -50,7 +50,7 @@ Please follow the _Environment_ and _Build the Core Blockchain_ section in [this
 
 You should run all the three programs, `phala-node`, `pherry`, and `pruntime`, according to the _Build the Core Blockchain_ section in the tutorial.
 
-![](https://wiki.phala.network/images/docs/developer/core-terminal.gif)
+![](./static/core-terminal.gif)
 
 ### Attach the Polkadot.js browser app to the testnet
 
