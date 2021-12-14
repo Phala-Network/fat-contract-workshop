@@ -154,15 +154,44 @@ Now the contract is up and running at your worker (0x3a3d45dc55b57bf542f4c6ff41a
 
 Please keep the contract id. It will be used in the next step.
 
-### Interact with the contract
+## Interact with the contract
 
-(WIP)
+### Prerequest
 
-- Download and build Phala-Network/js-sdk
-- Run, enter the contract key, and choose Alice, sign the certificate
-- Read `get()`
-- Call `flip()`
-- Read `get()` again
+1. Intall Node (>= v14) and yarn.
+2. Download and build Phala-Network/js-sdk (**fat-contract-workshop** branch)
+
+    ```sh
+    git clone --branch fat-contract-workshop https://github.com/Phala-Network/js-sdk.git
+    ```
+
+3. Edit `./packages/.env` to set the API endpints. If you run a cusomized deployment please adjust according to your configuration:
+
+    ```
+    NEXT_PUBLIC_BASE_URL=http://localhost:8000
+    NEXT_PUBLIC_WS_ENDPOINT=ws://localhost:9944
+    ```
+
+4. Compile and run the frontend. By default it will server the app at <http://localhost:3000>:
+
+    ```sh
+    yarn
+    yarn dev
+    ```
+
+### Interact
+
+Open the app in your browser. You can use use it to flip the bit in the flipper contract, and read the current boolean value in the contract.
+
+1. Authorize the app for the Polkadot.js Extension access via the pop-up window
+2. Choose an account with some balances (Alice or Bob) in right-top drop-down
+3. Click "Sign Certificate"
+
+    > This step is necessary in Fat Contract Dapp because we use a certificate chain to do end-to-end encryption. Whenever you selected a new account, just sign a new certificate.
+
+4. Click "Query" to call `get()`, and read the value
+5. Click "Command" to call `flip()`
+6. After 6s, click "Query" to call `get()`. You should read a flipped value.
 
 ## Challenge: "Secret" Flipper
 
