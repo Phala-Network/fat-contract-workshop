@@ -1,16 +1,16 @@
 # Fat Contract Workshop
 
-This is a simple workshop demonstrating how to write a Phala confidential-preserving ink! smart contract on Phala (thus, _Fat Contract_).
+This is a simple workshop demonstrating how to write a Phala confidential-preserving ink! smart contract on Phala (a.k.a, _Fat Contract_).
 
 ## Introduction
 
 Fat Contract is the programming model adopted by Phala Network. Fat Contract is **NOT** smart contract.
 
-Instead, it aims to provide the rich feature that ordinary smart contracts cannot offer, including:
+Instead, it aims to provide the rich features that ordinary smart contracts cannot offer, including:
 
 - CPU extensive computation: exclusive off-chain execution at the full CPU speed
-- Network access: the ability to send the HTTP request
-- Low latency: none consensus-sensitive operations may not hit the blockchain at all, removing the block latency
+- Network access: the ability to send the HTTP requests
+- Low latency: non-consensus-sensitive operations may not hit the blockchain at all, removing the block latency
 - Strong consistency: consensus-sensitive operations remain globally consistent
 - Confidentiality: contract state is hidden by default unless you specifically expose it via the read call
 
@@ -116,14 +116,14 @@ You should be able to see the following event:
 
 > ```
 > phalaRegistry.ContractInstantiated
-> 
+>
 > SpCoreSr25519Public ([u8;32])
 >   0x4c66c3bf1e1b4dd02e7666e578e41570e79a544239d8ec77075651ba7879de5e (contract key)
 > PhalaTypesContractContractInfo
 >   {
 >     deployer: 45R2pfjQUW2s9PQRHU48HQKLKHVMaDja7N3wpBtmF28UYDs2 (Alice)
 >     groupId: 1
->     salt: 
+>     salt:
 >     codeIndex: {
 >       WasmCode: 0x911dd86247a3f196379e70c14357bdbb398b6283842d4bfc2213d44b5680eb2c (example)
 >     }
@@ -192,7 +192,7 @@ pub fn get(&self) -> Option<bool> {
 
 ### Why cannot the vanilla ink! support storing secret?
 
-In the vanilla ink! smart contract, each "query" also come with an sender. The above code can of course compile and execute without any error.
+In the vanilla ink! smart contract, each "query" also comes with a sender. The above code can of course compile and execute without any error.
 
 However, it doesn't protect any secret. The sender field in the query is just an account (public key). In other words, anyone can feel free to specify any account as the query sender. The blockchain node doesn't require the sender to sign the query with its wallet.
 
