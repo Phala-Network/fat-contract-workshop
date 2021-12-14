@@ -48,7 +48,9 @@ Collect the above three files and create the contract in a local testnet.
 
 Please follow the _Environment_ and _Build the Core Blockchain_ section in [this tutorial](https://wiki.phala.network/en-us/docs/developer/run-a-local-development-network/#environment) to build a local testnet, but use the branch **fat-contract-workshop** instead (**important!**).
 
-You will run all the three programs: `phala-node`, `pherry`, and `pruntime`.
+You should run all the three programs, `phala-node`, `pherry`, and `pruntime`, according to the _Build the Core Blockchain_ section in the tutorial.
+
+![](https://wiki.phala.network/images/docs/developer/core-terminal.gif)
 
 ### Attach the Polkadot.js browser app to the testnet
 
@@ -58,9 +60,7 @@ You will run all the three programs: `phala-node`, `pherry`, and `pruntime`.
 
 You should notice the frontend should load and show the blockchain status.
 
-Now, make sure you have Polkadot.js Extension installed and have the test account imported (At least `//Alice` and `//Bob`). You will be able to see some balance in the "Account" page under Alice and Bob.
-
-> (WIP: how to import the test accounts to the extension)
+Now, make sure you have [Polkadot.js Extension](https://polkadot.js.org/extension/) installed and have the test account imported (At least `//Alice` and `//Bob`). You will be able to see some balance in the "Account" page under Alice and Bob. For more detials, please check [the appendix](#Polkadotjs-Extension-and-the-common-seeds).
 
 ### Deploy the contract
 
@@ -70,7 +70,7 @@ Now, make sure you have Polkadot.js Extension installed and have the test accoun
 pahlaRegistry.registerGatekeeper(0x3a3d45dc55b57bf542f4c6ff41af080ec675317f4ed50ae1d2713bf9f892692d)
 ```
 
-> The argument is the worker id (worker public key). This is the only worker in your local deployment.
+> The argument is the worker id (worker public key). This is the only (hard-coded) worker in your local deployment.
 
 **First step.** Upload the contract code. Navigate to "Developer > Extrinsics", and select
 
@@ -81,7 +81,7 @@ phalaRegistry.uploadCode()
 You should select the wasm file you got from the "Compile" section. Once it's done, you can navigate to the "Network > Explorer" page and find the `phalaRegistry.CodeUploaded` event with the code hash:
 
 > phalaRegistry.CodeUploaded
-> 0x911dd86247a3f196379e70c14357bdbb398b6283842d4bfc2213d44b5680eb2c (example)
+> 0x911dd86247a3f196379e70c14357bdbb398b6283842d4bfc2213d44b5680eb2c (example, may vary in your build)
 
 **Next step.** Please note the code hash. Then nativate back to "Developer > Extrinsic" and select
 
@@ -100,7 +100,7 @@ You should be able to see the follow event:
 > phalaRegistry.ContractInstantiated
 > 
 > SpCoreSr25519Public ([u8;32])
->   0x4c66c3bf1e1b4dd02e7666e578e41570e79a544239d8ec77075651ba7879de5e
+>   0x4c66c3bf1e1b4dd02e7666e578e41570e79a544239d8ec77075651ba7879de5e (contract key)
 > PhalaTypesContractContractInfo
 >   {
 >     deployer: 45R2pfjQUW2s9PQRHU48HQKLKHVMaDja7N3wpBtmF28UYDs2 (Alice)
@@ -116,7 +116,7 @@ You should be able to see the follow event:
 To double check, you can also navigate to "Developer > Chain State" check the deployment status:
 
 ```
-phalaRegistry.contracts()
+phalaRegistry.contractKey()
 ```
 
 - include option: off
@@ -125,28 +125,36 @@ phalaRegistry.contracts()
 > [
 >   [
 >     [
->       0x4c66c3bf1e1b4dd02e7666e578e41570e79a544239d8ec77075651ba7879de5e
+>       0xcf4b9fd7eb64dc1fe5ca550e715a49fae9f5a2de88afd3c32daa137fcc8ca5b7 (contract id)
 >     ]
->     {
->       deployer: 45R2pfjQUW2s9PQRHU48HQKLKHVMaDja7N3wpBtmF28UYDs2
->       groupId: 1
->       salt: 
->       codeIndex: {
->         WasmCode: 0x911dd86247a3f196379e70c14357bdbb398b6283842d4bfc2213d44b5680eb2c
->       }
->       instantiateData: 0xed4b9d1b
->     }
+>     0x4c66c3bf1e1b4dd02e7666e578e41570e79a544239d8ec77075651ba7879de5e (contract key)
 >   ]
-> ] 
+> ]
 > ```
 
-Now the contract is up and running at your worker (0x3a3d45dc55b57bf542f4c6ff41af080ec675317f4ed50ae1d2713bf9f892692d), with the contract id `0x4c66c3bf1e1b4dd02e7666e578e41570e79a544239d8ec77075651ba7879de5e`.
+Now the contract is up and running at your worker (0x3a3d45dc55b57bf542f4c6ff41af080ec675317f4ed50ae1d2713bf9f892692d), with the contract id `0xcf4b9fd7eb64dc1fe5ca550e715a49fae9f5a2de88afd3c32daa137fcc8ca5b7`.
+
+Please keep the contract id. It will be used in the next step.
 
 ### Interact with the contract 
 
 (WIP)
 
 - Download and build Phala-Network/js-sdk
-- Run, read `get()`
+- Run, enter the contract key, and choose Alice, sign the certificate
+- Read `get()`
 - Call `flip()`
 - Read `get()` again
+
+## Appendex
+
+### Polkadot.js Extension and the common seeds
+
+Phala App only accepts the official [Polkadot.js Extension](https://polkadot.js.org/extension/) as the wallet provider. In the local testnet there are a few built-in well known accounts for testing. In order to access them from the Polkadot.js Extension, you should import them to the extension with their raw seed. It's suggested to import at least Alice and Bob:
+
+| Key       | Raw seed                                                           |
+|-----------|--------------------------------------------------------------------|
+| //Alice   | 0xe5be9a5092b81bca64be81d212e7f2f9eba183bb7a90954f7b76361f6edb5c0a |
+| //Bob     | 0x398f0c28f98885e046333d4a41c19cee4c37368a9832c6502f6cfd182e2aef89 |
+| //Charlie | 0xbc1ede780f784bb6991a585e4f6e61522c14e1cae6ad0895fb57b9a205a8f938 |
+| //Dave    | 0x868020ae0687dda7d57565093a69090211449845a7e11453612800b663307246 |
