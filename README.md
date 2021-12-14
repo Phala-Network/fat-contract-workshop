@@ -85,7 +85,7 @@ Now, make sure you have [Polkadot.js Extension](https://polkadot.js.org/extensio
 **One-off job.** Navigate to "Developer > Sudo" and send the following transaction. This only need to be done once in a deployment.
 
 ```
-pahlaRegistry.registerGatekeeper(0x3a3d45dc55b57bf542f4c6ff41af080ec675317f4ed50ae1d2713bf9f892692d)
+phalaRegistry.registerGatekeeper(0x3a3d45dc55b57bf542f4c6ff41af080ec675317f4ed50ae1d2713bf9f892692d)
 ```
 
 > The argument is the worker id (worker public key). This is the only (hard-coded) worker in your local deployment.
