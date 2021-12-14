@@ -131,7 +131,7 @@ You should be able to see the following event:
 >   }
 > ```
 
-To double-check, you can also navigate to "Developer > Chain State" check the deployment status:
+**The final step.** Navigate to "Developer > Chain State" to get the contract id:
 
 ```
 phalaRegistry.contractKey()
