@@ -158,21 +158,21 @@ Please keep the contract id. It will be used in the next step.
 
 ### Prerequest
 
-1. Intall Node (>= v14) and yarn.
+1. Install Node (>= v14) and yarn.
 2. Download and build Phala-Network/js-sdk (**fat-contract-workshop** branch)
 
     ```sh
     git clone --branch fat-contract-workshop https://github.com/Phala-Network/js-sdk.git
     ```
 
-3. Edit `./packages/.env` to set the API endpints. If you run a cusomized deployment please adjust according to your configuration:
+3. Edit `./packages/.env` to set the API endpoints. If you run a customized deployment please adjust according to your configuration:
 
     ```
     NEXT_PUBLIC_BASE_URL=http://localhost:8000
     NEXT_PUBLIC_WS_ENDPOINT=ws://localhost:9944
     ```
 
-4. Compile and run the frontend. By default it will server the app at <http://localhost:3000>:
+4. Compile and run the frontend. By default it will serve the app at <http://localhost:3000>:
 
     ```sh
     yarn
@@ -181,13 +181,13 @@ Please keep the contract id. It will be used in the next step.
 
 ### Interact
 
-Open the app in your browser. You can use use it to flip the bit in the flipper contract, and read the current boolean value in the contract.
+Open the app in your browser. You can use it to flip the bit in the flipper contract, and read the current boolean value in the contract.
 
 1. Authorize the app for the Polkadot.js Extension access via the pop-up window
-2. Choose an account with some balances (Alice or Bob) in right-top drop-down
+2. Choose an account with some balances (Alice or Bob) in the right-top drop-down
 3. Click "Sign Certificate"
 
-    > This step is necessary in Fat Contract Dapp because we use a certificate chain to do end-to-end encryption. Whenever you selected a new account, just sign a new certificate.
+    > This step is necessary for Fat Contract Dapp because we use a certificate chain to do end-to-end encryption. Whenever you selected a new account, just sign a new certificate.
 
 4. Click "Query" to call `get()`, and read the value
 5. Click "Command" to call `flip()`
@@ -240,7 +240,7 @@ Please check the `solution` branch.
 
 ### Polkadot.js Extension and the common seeds
 
-Phala App only accepts the official [Polkadot.js Extension](https://polkadot.js.org/extension/) as the wallet provider. In the local testnet there are a few built-in well-known accounts for testing. To access them from the Polkadot.js Extension, you should import them to the extension with their raw seed. It's suggested to import at least Alice and Bob:
+Phala App only accepts the official [Polkadot.js Extension](https://polkadot.js.org/extension/) as the wallet provider. In the local testnet, there are a few built-in well-known accounts for testing. To access them from the Polkadot.js Extension, you should import them to the extension with their raw seed. It's suggested to import at least Alice and Bob:
 
 | Key       | Raw seed                                                           |
 |-----------|--------------------------------------------------------------------|
