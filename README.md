@@ -70,6 +70,8 @@ You should run all the three programs, `phala-node`, `pherry`, and `pruntime`, a
 
 ![](./static/core-terminal.gif)
 
+> Before running `pruntime`, please remove all the `*.seal` files in the `bin/` directory if there's any. The seal files are the state cache of pruntime, which cannot be shared across the chains. In this workshop we always start with a new local dev net. So you should make sure it doesn't reuse any seal file from another chain. If you forget to do so, the contract instantiation may not work.
+
 ### Attach the Polkadot.js browser app to the testnet
 
 1. Enter [Polkadot.js Apps](https://polkadot.js.org/apps).
@@ -165,7 +167,7 @@ Please keep the contract id. It will be used in the next step.
     git clone --branch fat-contract-workshop https://github.com/Phala-Network/js-sdk.git
     ```
 
-3. Edit `./packages/.env` to set the API endpoints. If you run a customized deployment please adjust according to your configuration:
+3. Edit `./packages/example/.env` to set the API endpoints. If you run a customized deployment please adjust according to your configuration:
 
     ```
     NEXT_PUBLIC_BASE_URL=http://localhost:8000
