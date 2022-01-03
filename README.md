@@ -45,6 +45,10 @@ cargo contract new flipper
 > ```
 
 ## Compile the contract
+> Please note that you will need to use the nightly builds to build the contract. Run the following to resolve build failures or check out the [ink! repo](https://github.com/paritytech/cargo-contract#build-requires-the-nightly-toolchain).
+>```sh
+> cargo +nightly contract build
+>```
 
 ```sh
 cd flipper
@@ -64,7 +68,7 @@ Collect the above three files and create the contract in a local testnet.
 
 ### Run the local testnet
 
-Please follow the _Environment_ and _Build the Core Blockchain_ section in [this tutorial](https://wiki.phala.network/en-us/docs/developer/run-a-local-development-network/#environment) to build a local testnet, but use the branch **fat-contract-workshop** instead (**important!**).
+Please follow the _Environment_ and _Build the Core Blockchain_ section in [this tutorial](https://wiki.phala.network/en-us/docs/developer/run-a-local-development-network/#environment) to build a local testnet, but use the branch **master** instead (**important!**).
 
 You should run all the three programs, `phala-node`, `pherry`, and `pruntime`, according to the _Build the Core Blockchain_ section in the tutorial.
 
@@ -209,7 +213,7 @@ We leave a challenge for you to explore the confidentiality of Phala's Fat Contr
 
 ### How is it possible?
 
-Fat Contracts are confidential by default. All the contract inputs, outputs, and states are encrypted. The data is only decrypted after arriving at the [Secure Encalve](https://www.anjuna.io/what-is-a-secure-enclave) (where the contract executor runs). As a result, although you can see the transactions and storage on the blockchain, they are just encrypted data.
+Fat Contracts are confidential by default. All the contract inputs, outputs, and states are encrypted. The data is only decrypted after arriving at the [Secure Enclave](https://www.anjuna.io/what-is-a-secure-enclave) (where the contract executor runs). As a result, although you can see the transactions and storage on the blockchain, they are just encrypted data.
 
 So the only way to read some data from the contract is to send a **query**.
 
@@ -235,7 +239,7 @@ In the vanilla ink! smart contract, each "query" also comes with a sender. The a
 
 However, it doesn't protect any secret. The sender field in the query is just an account (public key). In other words, anyone can feel free to specify any account as the query sender. The blockchain node doesn't require the sender to sign the query with its wallet.
 
-Indeed, it doesn't make a lot of sense to require the signature. In an ordinary blockchain, all the data must be transparent and shared between all the nodes, as required by the consensus mechanism. As long as you run a full node, you get a full copy of the blockchain database. The query function just reads the data from the blockchain. Assuming we add the signature check just like what we do in Fat Contract, anyone can still make a modified version of the client to perform the query function to bypass any check. However, this doesn't work at Phala Network, because only an unmodified worker program (pRuntime) running in a canonical Secure Encalve can load the contract and get the key to decrypt the contract data. The Secure Enclave provides a strong layer of protection.
+Indeed, it doesn't make a lot of sense to require the signature. In an ordinary blockchain, all the data must be transparent and shared between all the nodes, as required by the consensus mechanism. As long as you run a full node, you get a full copy of the blockchain database. The query function just reads the data from the blockchain. Assuming we add the signature check just like what we do in Fat Contract, anyone can still make a modified version of the client to perform the query function to bypass any check. However, this doesn't work at Phala Network, because only an unmodified worker program (pRuntime) running in a canonical Secure Enclave can load the contract and get the key to decrypt the contract data. The Secure Enclave provides a strong layer of protection.
 
 ### Exercise
 
