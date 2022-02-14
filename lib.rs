@@ -10,13 +10,14 @@ mod fat_sample {
         string::{String, ToString},
         vec::Vec,
     };
-    use ink_storage::lazy::Mapping;
+    use ink_storage::{lazy::Mapping, traits::SpreadAllocate};
     use pink::{
         chain_extension::SigType, derive_sr25519_pair, http_get, sign, verify, PinkEnvironment,
     };
     use scale::{Decode, Encode};
 
     #[ink(storage)]
+    #[derive(Default, SpreadAllocate)]
     pub struct FatSample {
         admin: AccountId,
         attestation_privkey: Vec<u8>,
@@ -112,10 +113,24 @@ mod fat_sample {
             }
             // Link the accounts, and prevent double redemptions
             self.username_by_account.insert(&account, &username);
-            self.account_by_username.insert(username, &account);
+            self.account_by_username.insert(&username, &account);
+            #[cfg(test)]
+            {
+                println!("map {:?} {}", account, username);
+                println!("1111 CODE getting username_by_account({:?}) = {:?}", account, self.username_by_account.get(&account));
+            }
             self.redeem_by_account
                 .insert(&account, &self.total_redeemed);
+            #[cfg(test)]
+            {
+                println!("2222 CODE getting username_by_account({:?}) = {:?}", account, self.username_by_account.get(&account));
+            }
             self.total_redeemed += 1;
+            #[cfg(test)]
+            {
+                self.username_by_account.insert(&account, &username);
+                println!("3333 CODE getting username_by_account({:?}) = {:?}", account, self.username_by_account.get(&account));
+            }
             Ok(())
         }
 
@@ -318,6 +333,57 @@ mod fat_sample {
                 extract_claim(b"This gist is owned by address: 0xXX23456789012345678901234567890123456789012345678901234567890123"),
                 Err(Error::InvalidAddress),
             );
+        }
+
+        #[ink::test]
+        fn end_to_end() {
+            use pink_extension::chain_extension::{test::*, HttpResponse};
+
+            // Mock derive key call (a pregenerated key pair)
+            ink_env::test::register_chain_extension(MockDeriveSr25519Pair::new(|_| {
+                (
+                    hex::decode("78003ee90ff2544789399de83c60fa50b3b24ca86c7512d0680f64119207c80ab240b41344968b3e3a71a02c0e8b454658e00e9310f443935ecadbdd1674c683").unwrap(),
+                    hex::decode("ce786c340288b79a951c68f87da821d6c69abd1899dff695bda95e03f9c0b012").unwrap()
+                )
+            }));
+            ink_env::test::register_chain_extension(MockSign::new(|_| b"mock-signature".to_vec()));
+            ink_env::test::register_chain_extension(MockVerify::new(|_| true));
+
+            // Test accounts
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+                .expect("Cannot get accounts");
+            // Construct a contract (deployed by `accounts.alice` by default)
+            let mut contract = FatSample::default();
+            assert_eq!(contract.admin, accounts.alice);
+            // Admin (alice) can set POAP
+            assert!(contract
+                .admin_set_poap_code(vec!["code1".to_string(), "code2".to_string(),])
+                .is_ok());
+            // Generate an attestation
+            //
+            // Mock a http request first (the 256 bits account id is the pubkey of Alice)
+            ink_env::test::register_chain_extension(MockHttpRequest::new(|_| {
+                HttpResponse::ok(b"This gist is owned by address: 0x0101010101010101010101010101010101010101010101010101010101010101".to_vec())
+            }));
+            let result = contract.attest_gist("https://gist.githubusercontent.com/h4x3rotab/0cabeb528bdaf30e4cf741e26b714e04/raw/620f958fb92baba585a77c1854d68dc986803b4e/test%2520gist".to_string());
+            println!("bad result: {:?}", result);
+            assert!(result.is_ok());
+            let attestation = result.unwrap();
+            assert_eq!(attestation.attestation.username, "h4x3rotab");
+            assert_eq!(attestation.attestation.account_id, accounts.alice);
+            // Redeem
+            assert!(contract.redeem(attestation).is_ok());
+            assert_eq!(contract.total_redeemed, 1);
+            assert_eq!(
+                contract.account_by_username.get("h4x3rotab".to_string()),
+                Some(accounts.alice)
+            );
+            println!("TEST getting username_by_account({:?}) = {:?}", accounts.alice, contract.username_by_account.get(&accounts.alice));
+            assert_eq!(
+                contract.username_by_account.get(&accounts.alice),
+                Some("h4x3rotab".to_string())
+            );
+            assert_eq!(contract.redeem_by_account.get(accounts.alice), Some(0));
         }
     }
 }
