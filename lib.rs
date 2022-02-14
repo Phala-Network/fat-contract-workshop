@@ -42,11 +42,15 @@ mod fat_sample {
             (resposne.status_code, resposne.body)
         }
 
+        /// Attests a Github Gist by the raw file url. (Query only)
+        /// 
+        /// It sends a HTTPS request to the url and extract an address from the claim ("This gist
+        /// is owned by address: 0x..."). Once the claim is verified, it returns a signed
+        /// attestation with the pair `(github_username, account_id)`.
         #[ink(message)]
-        pub fn attest_gist(&self, url: Vec<u8>) -> Result<SignedAttestation, Error> {
+        pub fn attest_gist(&self, url: String) -> Result<SignedAttestation, Error> {
             // Verify the URL
             let gist_url = parse_gist_url(&url)?;
-            let url = String::from_utf8(url).or(Err(Error::InvalidUrl))?;
             // Fetch the gist content
             let resposne = http_get!(url);
             if resposne.status_code != 200 {
@@ -56,7 +60,7 @@ mod fat_sample {
             // Verify the claim and extract the account id
             let account_id = extract_claim(&body)?;
             let attestation = Attestation {
-                username: gist_url.username,
+                username: gist_url.username.into_bytes(),
                 account_id,
             };
             Ok(attestation.into_signed(b"TODO: privkey"))
@@ -65,27 +69,27 @@ mod fat_sample {
 
     #[derive(PartialEq, Eq, Debug)]
     struct GistUrl {
-        username: Vec<u8>,
-        gist_id: Vec<u8>,
-        filename: Vec<u8>,
+        username: String,
+        gist_id: String,
+        filename: String,
     }
 
     /// Parses a Github Gist url.
     ///
     /// - Returns a parsed [GistUrl] struct if the input is a valid url;
     /// - Otherwise returns an [Error].
-    fn parse_gist_url(url: &[u8]) -> Result<GistUrl, Error> {
+    fn parse_gist_url(url: &str) -> Result<GistUrl, Error> {
         let path = url
-            .strip_prefix(b"https://gist.githubusercontent.com/")
+            .strip_prefix("https://gist.githubusercontent.com/")
             .ok_or(Error::InvalidUrl)?;
-        let components: Vec<_> = path.split(|c| *c == b'/').collect();
+        let components: Vec<_> = path.split('/').collect();
         if components.len() < 5 {
             return Err(Error::InvalidUrl);
         }
         Ok(GistUrl {
-            username: components[0].to_vec(),
-            gist_id: components[1].to_vec(),
-            filename: components[4].to_vec(),
+            username: components[0].to_string(),
+            gist_id: components[1].to_string(),
+            filename: components[4].to_string(),
         })
     }
 
@@ -161,16 +165,16 @@ mod fat_sample {
 
         #[ink::test]
         fn can_parse_gist_url() {
-            let result = parse_gist_url(b"https://gist.githubusercontent.com/h4x3rotab/0cabeb528bdaf30e4cf741e26b714e04/raw/620f958fb92baba585a77c1854d68dc986803b4e/test%2520gist");
+            let result = parse_gist_url("https://gist.githubusercontent.com/h4x3rotab/0cabeb528bdaf30e4cf741e26b714e04/raw/620f958fb92baba585a77c1854d68dc986803b4e/test%2520gist");
             assert_eq!(
                 result,
                 Ok(GistUrl {
-                    username: b"h4x3rotab".to_vec(),
-                    gist_id: b"0cabeb528bdaf30e4cf741e26b714e04".to_vec(),
-                    filename: b"test%2520gist".to_vec(),
+                    username: "h4x3rotab".to_string(),
+                    gist_id: "0cabeb528bdaf30e4cf741e26b714e04".to_string(),
+                    filename: "test%2520gist".to_string(),
                 })
             );
-            let err = parse_gist_url(b"http://example.com");
+            let err = parse_gist_url("http://example.com");
             assert_eq!(err, Err(Error::InvalidUrl));
         }
 
