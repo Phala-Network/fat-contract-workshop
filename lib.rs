@@ -17,7 +17,7 @@ mod fat_sample {
     use scale::{Decode, Encode};
 
     #[ink(storage)]
-    #[derive(Default, SpreadAllocate)]
+    #[derive(SpreadAllocate)]
     pub struct FatSample {
         admin: AccountId,
         attestation_privkey: Vec<u8>,
@@ -55,20 +55,17 @@ mod fat_sample {
         pub fn default() -> Self {
             // Generate a Sr25519 key pair
             let (privkey, pubkey) = derive_sr25519_pair!(b"gist-attestation-key");
-            // TODO-2. (optionally) reveal the pubkey
             // Save sender as the contract admin
             let admin = Self::env().caller();
-            Self {
-                admin,
-                attestation_privkey: privkey,
-                attestation_pubkey: pubkey,
-                poap_code: Default::default(),
 
-                redeem_by_account: Default::default(),
-                total_redeemed: 0u32,
-                username_by_account: Default::default(),
-                account_by_username: Default::default(),
-            }
+            // This call is required in order to correctly initialize the
+            // `Mapping`s of our contract.
+            ink_lang::codegen::initialize_contract(|contract: &mut Self| {
+                contract.admin = admin;
+                contract.attestation_privkey = privkey;
+                contract.attestation_pubkey = pubkey;
+                contract.total_redeemed = 0u32;
+            })
         }
 
         /// Sets the POAP redemption code. (callable, admin-only)
@@ -114,23 +111,9 @@ mod fat_sample {
             // Link the accounts, and prevent double redemptions
             self.username_by_account.insert(&account, &username);
             self.account_by_username.insert(&username, &account);
-            #[cfg(test)]
-            {
-                println!("map {:?} {}", account, username);
-                println!("1111 CODE getting username_by_account({:?}) = {:?}", account, self.username_by_account.get(&account));
-            }
             self.redeem_by_account
                 .insert(&account, &self.total_redeemed);
-            #[cfg(test)]
-            {
-                println!("2222 CODE getting username_by_account({:?}) = {:?}", account, self.username_by_account.get(&account));
-            }
             self.total_redeemed += 1;
-            #[cfg(test)]
-            {
-                self.username_by_account.insert(&account, &username);
-                println!("3333 CODE getting username_by_account({:?}) = {:?}", account, self.username_by_account.get(&account));
-            }
             Ok(())
         }
 
@@ -366,7 +349,6 @@ mod fat_sample {
                 HttpResponse::ok(b"This gist is owned by address: 0x0101010101010101010101010101010101010101010101010101010101010101".to_vec())
             }));
             let result = contract.attest_gist("https://gist.githubusercontent.com/h4x3rotab/0cabeb528bdaf30e4cf741e26b714e04/raw/620f958fb92baba585a77c1854d68dc986803b4e/test%2520gist".to_string());
-            println!("bad result: {:?}", result);
             assert!(result.is_ok());
             let attestation = result.unwrap();
             assert_eq!(attestation.attestation.username, "h4x3rotab");
@@ -378,7 +360,6 @@ mod fat_sample {
                 contract.account_by_username.get("h4x3rotab".to_string()),
                 Some(accounts.alice)
             );
-            println!("TEST getting username_by_account({:?}) = {:?}", accounts.alice, contract.username_by_account.get(&accounts.alice));
             assert_eq!(
                 contract.username_by_account.get(&accounts.alice),
                 Some("h4x3rotab".to_string())
