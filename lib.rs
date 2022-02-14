@@ -6,12 +6,22 @@ use pink_extension as pink;
 #[pink::contract(env=PinkEnvironment)]
 mod fat_sample {
     use super::pink;
-    use alloc::{string::String, vec::Vec};
-    use pink::{http_get, PinkEnvironment};
+    use alloc::{
+        string::{String, ToString},
+        vec::Vec,
+    };
+    use pink::{
+        chain_extension::SigType, derive_sr25519_pair, http_get, sign, verify, PinkEnvironment,
+    };
     use scale::{Decode, Encode};
 
     #[ink(storage)]
-    pub struct FatSample {}
+    pub struct FatSample {
+        admin: AccountId,
+        attestation_privkey: Vec<u8>,
+        attestation_pubkey: Vec<u8>,
+        poap_code: Vec<String>,
+    }
 
     #[derive(Encode, Decode, Debug, PartialEq, Eq, Copy, Clone)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
@@ -21,20 +31,59 @@ mod fat_sample {
         NoClaimFound,
         InvalidAddressLength,
         InvalidAddress,
+        NoPermission,
     }
 
     impl FatSample {
         #[ink(constructor)]
         pub fn default() -> Self {
-            // TODO-1. generate a Sr25519 key pair
+            // Generate a Sr25519 key pair
+            let (privkey, pubkey) = derive_sr25519_pair!(b"gist-attestation-key");
             // TODO-2. (optionally) reveal the pubkey
-            // TODO-3. save sender as admin
-            Self {}
+            // Save sender as the contract admin
+            let admin = Self::env().caller();
+            Self {
+                admin,
+                attestation_privkey: privkey,
+                attestation_pubkey: pubkey,
+                poap_code: Default::default(),
+            }
         }
 
-        // TODO-4. admin set_poap_links(links: Vec<Vec<u8>>)
-        // TODO-5. redeem(attestation)
-        // TODO-6. query my_link()
+        /// Sets the POAP redemption code. (callable, admin-only)
+        ///
+        /// The admin must set enough POAP code while setting up the contract. The code can be
+        /// overrode at any time.
+        #[ink(message)]
+        pub fn admin_set_poap_code(&mut self, code: Vec<String>) -> Result<(), Error> {
+            // The caller must be the admin
+            let caller = self.env().caller();
+            if caller != self.admin {
+                return Err(Error::NoPermission);
+            }
+            // Update the code
+            self.poap_code = code;
+            Ok(())
+        }
+
+        /// Redeems a POAP with a signed `attestation`. (callable)
+        ///
+        /// The attestation must be created by [attest_gist] function. After the verification of
+        /// the attestation, the the sender account will the linked to a Github username. Then a
+        /// POAP redemption code will be allocated to the sender.
+        ///
+        /// Each blockchain account and github account can only be linked once.
+        #[ink(message)]
+        pub fn redeem(&self, attestation: SignedAttestation) -> Result<(), Error> {
+            // TODO
+            Ok(())
+        }
+
+        /// Returns my POAP redemption code / link if it exists. (View function)
+        #[ink(message)]
+        pub fn my_poap(&self) -> Option<String> {
+            Some("TODO".to_string())
+        }
 
         #[ink(message)]
         pub fn query_example(&self) -> (u16, Vec<u8>) {
@@ -43,7 +92,7 @@ mod fat_sample {
         }
 
         /// Attests a Github Gist by the raw file url. (Query only)
-        /// 
+        ///
         /// It sends a HTTPS request to the url and extract an address from the claim ("This gist
         /// is owned by address: 0x..."). Once the claim is verified, it returns a signed
         /// attestation with the pair `(github_username, account_id)`.
@@ -63,7 +112,18 @@ mod fat_sample {
                 username: gist_url.username.into_bytes(),
                 account_id,
             };
-            Ok(attestation.into_signed(b"TODO: privkey"))
+            let result = self.sign_attestation(attestation);
+            Ok(result)
+        }
+
+        /// Signs the `attestation` with the attestation key pair.
+        pub fn sign_attestation(&self, attestation: Attestation) -> SignedAttestation {
+            let encoded = Encode::encode(&attestation);
+            let signature = sign!(&encoded, &self.attestation_privkey, SigType::Sr25519);
+            SignedAttestation {
+                attestation,
+                signature,
+            }
         }
     }
 
@@ -139,17 +199,6 @@ mod fat_sample {
     pub struct SignedAttestation {
         attestation: Attestation,
         signature: Vec<u8>,
-    }
-
-    impl Attestation {
-        fn into_signed(self, key: &[u8]) -> SignedAttestation {
-            let encoded = Encode::encode(&self);
-            // let signature = sign(encoded, key);
-            SignedAttestation {
-                attestation: self,
-                signature: Vec::new(), // TODO
-            }
-        }
     }
 
     /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`

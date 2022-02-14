@@ -15,7 +15,7 @@ ink_lang = { version = "3.0.0-rc8", default-features = false }
 scale = { package = "parity-scale-codec", version = "2.1", default-features = false, features = ["derive"] }
 scale-info = { version = "1.0.0", default-features = false, features = ["derive"], optional = true }
 
-pink-extension = { version = "0.1.1", default-features = false }
+pink-extension = { version = "0.1.3", default-features = false }
 safe-regex = { version = "0.2.5", default-features = false }
 hex = { version = "0.4.3", default-features = false, features = ["alloc"] }
 
