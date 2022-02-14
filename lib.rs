@@ -340,7 +340,7 @@ mod fat_sample {
             assert_eq!(contract.admin, accounts.alice);
             // Admin (alice) can set POAP
             assert!(contract
-                .admin_set_poap_code(vec!["code1".to_string(), "code2".to_string(),])
+                .admin_set_poap_code(vec!["code0".to_string(), "code1".to_string(),])
                 .is_ok());
             // Generate an attestation
             //
@@ -353,6 +353,8 @@ mod fat_sample {
             let attestation = result.unwrap();
             assert_eq!(attestation.attestation.username, "h4x3rotab");
             assert_eq!(attestation.attestation.account_id, accounts.alice);
+            // Before redeem
+            assert_eq!(contract.my_poap(), None);
             // Redeem
             assert!(contract.redeem(attestation).is_ok());
             assert_eq!(contract.total_redeemed, 1);
@@ -365,6 +367,9 @@ mod fat_sample {
                 Some("h4x3rotab".to_string())
             );
             assert_eq!(contract.redeem_by_account.get(accounts.alice), Some(0));
+            // Check my redemption code
+            assert_eq!(contract.my_poap(), Some("code0".to_string()))
+            // TODO: check bob reading the contract?
         }
     }
 }
