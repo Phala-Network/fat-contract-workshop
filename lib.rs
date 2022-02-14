@@ -10,6 +10,7 @@ mod fat_sample {
         string::{String, ToString},
         vec::Vec,
     };
+    use ink_storage::lazy::Mapping;
     use pink::{
         chain_extension::SigType, derive_sr25519_pair, http_get, sign, verify, PinkEnvironment,
     };
@@ -21,6 +22,17 @@ mod fat_sample {
         attestation_privkey: Vec<u8>,
         attestation_pubkey: Vec<u8>,
         poap_code: Vec<String>,
+
+        /// Map from the account to the redemption index
+        ///
+        /// Thus the POAP code should be `poap_code[index]`.
+        redeem_by_account: Mapping<AccountId, u32>,
+        /// The number of total redeemed code.
+        total_redeemed: u32,
+        /// Map from verified accounts to usernames
+        username_by_account: Mapping<AccountId, String>,
+        /// Map from verified usernames to accounts
+        account_by_username: Mapping<String, AccountId>,
     }
 
     #[derive(Encode, Decode, Debug, PartialEq, Eq, Copy, Clone)]
@@ -32,6 +44,9 @@ mod fat_sample {
         InvalidAddressLength,
         InvalidAddress,
         NoPermission,
+        InvalidSignature,
+        UsernameAlreadyInUse,
+        AccountAlreadyInUse,
     }
 
     impl FatSample {
@@ -47,6 +62,11 @@ mod fat_sample {
                 attestation_privkey: privkey,
                 attestation_pubkey: pubkey,
                 poap_code: Default::default(),
+
+                redeem_by_account: Default::default(),
+                total_redeemed: 0u32,
+                username_by_account: Default::default(),
+                account_by_username: Default::default(),
             }
         }
 
@@ -74,15 +94,45 @@ mod fat_sample {
         ///
         /// Each blockchain account and github account can only be linked once.
         #[ink(message)]
-        pub fn redeem(&self, attestation: SignedAttestation) -> Result<(), Error> {
-            // TODO
+        pub fn redeem(&mut self, signed: SignedAttestation) -> Result<(), Error> {
+            // Verify the attestation
+            let attestation = self.verify_attestation(signed)?;
+            // The caller must be the attested account
+            if attestation.account_id != self.env().caller() {
+                return Err(Error::NoPermission);
+            }
+            let username = attestation.username;
+            let account = attestation.account_id;
+            // The username and the account mustn't be linked
+            if self.username_by_account.get(&account).is_some() {
+                return Err(Error::UsernameAlreadyInUse);
+            }
+            if self.account_by_username.get(&username).is_some() {
+                return Err(Error::AccountAlreadyInUse);
+            }
+            // Link the accounts, and prevent double redemptions
+            self.username_by_account.insert(&account, &username);
+            self.account_by_username.insert(username, &account);
+            self.redeem_by_account
+                .insert(&account, &self.total_redeemed);
+            self.total_redeemed += 1;
             Ok(())
         }
 
         /// Returns my POAP redemption code / link if it exists. (View function)
+        ///
+        /// - If the account doesn't have any redemption code allocated, it returns `None`;
+        /// - If the account has the code allocated but the contract doesn't have sufficient code
+        ///    in `poap_code`, it returns `None` as well;
+        /// - Otherwise it returns the code.
         #[ink(message)]
         pub fn my_poap(&self) -> Option<String> {
-            Some("TODO".to_string())
+            let caller = self.env().caller();
+            let idx = match self.redeem_by_account.get(&caller) {
+                Some(idx) => idx,
+                None => return None,
+            };
+            self.poap_code.get(idx as usize).cloned()
         }
 
         #[ink(message)]
@@ -109,7 +159,7 @@ mod fat_sample {
             // Verify the claim and extract the account id
             let account_id = extract_claim(&body)?;
             let attestation = Attestation {
-                username: gist_url.username.into_bytes(),
+                username: gist_url.username,
                 account_id,
             };
             let result = self.sign_attestation(attestation);
@@ -124,6 +174,20 @@ mod fat_sample {
                 attestation,
                 signature,
             }
+        }
+
+        /// Verifies the signed attestation and return the inner data.
+        pub fn verify_attestation(&self, signed: SignedAttestation) -> Result<Attestation, Error> {
+            let encoded = Encode::encode(&signed.attestation);
+            if !verify!(
+                &encoded,
+                &self.attestation_pubkey,
+                &signed.signature,
+                SigType::Sr25519
+            ) {
+                return Err(Error::InvalidSignature);
+            }
+            Ok(signed.attestation)
         }
     }
 
@@ -190,7 +254,7 @@ mod fat_sample {
     #[derive(Encode, Decode, Debug)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub struct Attestation {
-        username: Vec<u8>,
+        username: String,
         account_id: AccountId,
     }
 
