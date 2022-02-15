@@ -171,7 +171,8 @@ There are three events to observe, all these events contain your contract ID
 
 You can go to `Developer` - `Chain state` and select the extrinsic `phalaFatContracts` and `contracts` to see all the contracts.
 
-> Handle instantiation failure: For now, the contract execution log is not directly available to the developers. Join our [Discord](https://discord.gg/myBmQu5) and we can help forward the Worker logs if necessary.
+> ### Handle instantiation failure
+> For now, the contract execution log is not directly available to the developers. Join our [Discord](https://discord.gg/myBmQu5) and we can help forward the Worker logs if necessary.
 
 ## Interact with the contract
 
@@ -196,6 +197,9 @@ Follow the steps to run the frontend
 
 You shall see the identical page as we have [deployed](#play-with-our-deployed-version).
 
+> ### Attention
+> By default, the `poap_code` pool is empty, so the users can only get empty string even if they have passed the verification. The contract admin need to invoke the `admin_set_poap_code()` first to fill in the redeem code pool so the users can really get something.
+
 ## Challenge: Fill in the missing code
 
 We leave two challenges (labeled by `TODO`) for you to explore.
@@ -208,7 +212,7 @@ Please check the `ethdenver-2022-solution` branch.
 
 ## Appendix
 
-## Endpoints
+### Endpoints
 
 - Chain: `wss://poc5.phala.network/ws` / `wss://poc5-2.phala.network/ws`
     - Polkadot.js quick link: https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fpoc5.phala.network%2Fws#/explorer
