@@ -212,6 +212,20 @@ Please check the `ethdenver-2022-solution` branch.
 
 ## Appendix
 
+### Resources
+
+- ETHDenver 2022
+    - [Workshop live Q&A](https://www.dory.app/c/a80ff472/998bb98b_phala-network-workshop-2-15/questions)
+    - [Hackathon Repo](https://github.com/Phala-Network/ETHDenver-2022)
+    - [FAQ list](https://docs.google.com/document/d/1SRyJss5oNf_szan3Hbtf9MyKrE24aSAV5degd7ES0JY/edit?usp=sharing)
+    - Prebuilt [Redeem POAP App](https://phala-js-sdk-example.netlify.app/)
+- [JS SDK (with the UI scaffold)](https://github.com/Phala-Network/js-sdk)
+    - [SDK docs](https://github.com/Phala-Network/js-sdk/tree/main/packages/sdk)
+    - [Scalffold docs](https://github.com/Phala-Network/js-sdk/tree/main/packages/example)
+- [ink! Docs](https://paritytech.github.io/ink-docs/)
+- [Polkadot.js Docs](https://polkadot.js.org/docs)
+- Join [Discord](https://discord.gg/phala) #dev and #hackathon groups!
+
 ### Endpoints
 
 - Chain: `wss://poc5.phala.network/ws` / `wss://poc5-2.phala.network/ws`
