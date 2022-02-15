@@ -3,3 +3,5 @@
 
 # Ignore backup files creates by cargo fmt.
 **/*.rs.bk
+
+.vscode/
