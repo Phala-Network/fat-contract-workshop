@@ -110,111 +110,52 @@ $ ls -h target/ink
 
 ## Deploy
 
-Collect the above two files and create the contract in Phala Testnet (PoC 5).
+Collect the above two files and create the contract in Phala Testnet (PoC 5). The contract deployment can be divided into two steps: code upload and contract instantiation.
 
-### Run the local testnet
+We recommend to keep a tab for explorer so you will not miss any historical events.
 
-Please follow the _Environment_ and _Build the Core Blockchain_ section in [this tutorial](https://wiki.phala.network/en-us/docs/developer/run-a-local-development-network/#environment) to build a local testnet, but use the branch **master** instead (**important!**).
+### Code upload
 
-You should run all the three programs, `phala-node`, `pherry`, and `pruntime`, according to the _Build the Core Blockchain_ section in the tutorial.
+Choose `Developer` - `Extrinsics`, and select the extrinsic `phalaFatContracts` and `uploadCode`, drag the `fat_sample.wasm` file and send the transaction.
 
-![](./static/core-terminal.gif)
+![](static/deploy-upload-code.png)
 
-> Before running `pruntime`, please remove all the `*.seal` files in the `bin/` directory if there's any. The seal files are the state cache of pruntime, which cannot be shared across the chains. In this workshop we always start with a new local dev net. So you should make sure it doesn't reuse any seal file from another chain. If you forget to do so, the contract instantiation may not work.
+A event of `phalaFatContracts.CodeUploaded` should be observed in the block explorer with the code hash, also you can go to `Developer` - `Chain state` and select the extrinsic `phalaFatContracts` and `code` to see the existing code.
 
-### Attach the Polkadot.js browser app to the testnet
+Code upload could failed if the wasm code is already on chain.
 
-1. Enter [Polkadot.js Apps](https://polkadot.js.org/apps).
-2. Click the icon at the left top corner to open the sidebar
-3. Switch to "DEVELOPMENT > Custom" and enter your local `phala-node` ws rpc port (by default: ws://localhost:9944)
+### Contract instantiation
 
-You should notice the frontend should load and show the blockchain status.
-
-Now, make sure you have [Polkadot.js Extension](https://polkadot.js.org/extension/) installed and have the test account imported (At least `//Alice` and `//Bob`). You will be able to see some balance on the "Account" page under Alice and Bob. For more details, please check [the appendix](#Polkadotjs-Extension-and-the-common-seeds).
-
-### Deploy the contract
-
-**Query for workers.** Navigate to "Developer > Chain State", and select workers & deselect include option to get the listed workers for the next step.
-
-![](./static/fat-contract-query-workers.gif)
-
-**One-off job.** Navigate to "Developer > Sudo" and send the following transaction. This only needs to be done once in a deployment.
-
+Choose `Developer` - `Extrinsics`, and select the extrinsic `phalaFatContracts` and `instantiateCode`. We explain the arguments as follow:
+- `codeIndex`: the code to use, choose `WasmCode` and type in the hash of you uploaded code
+- `data`: the instantiation argument. We shall call the constructor function of the contract will the specific function selector, This can be found in the `metadata.json` (in this case, `0xed4b9d1b`)
+```json
+...
+    "constructors": [
+    {
+        "args": [],
+        "docs": [],
+        "label": "default",
+        "payable": false,
+        "selector": "0xed4b9d1b"
+    }
+],
+...
 ```
-phalaRegistry.registerGatekeeper(0x3a3d45dc55b57bf542f4c6ff41af080ec675317f4ed50ae1d2713bf9f892692d)
-```
+- `salt`: some random bytes to prevent collision, like `0x0` or `0x1234`
+- `deployTo`: we have prepared a cluster with `0x0000000000000000000000000000000000000000000000000000000000000002`. In the future, customized cluster will be enabled.
 
-> The argument is the worker id (worker public key). This is the only (hard-coded) worker in your local deployment.
+![](static/deploy-instantiate.png)
 
-![](./static/fat-contract-set-gatekeeper-verify.gif)
+There are three events to observe, all these events contain your contract ID
 
-**First step.** Upload the contract code. Navigate to "Developer > Extrinsics", and select
+- `phalaFatContracts.Instantiating`, the chain has receive your request and start instanting
+- `phalaFatContracts.PubkeyAvailable`, the gatekeeper has generated the contract key to encrypt its state and input/output
+- `phalaFatContracts.Instantiated`, your contract is successfully instantiated
 
-```
-phalaRegistry.uploadCode()
-```
+You can go to `Developer` - `Chain state` and select the extrinsic `phalaFatContracts` and `contracts` to see all the contracts.
 
-You should select the wasm file you got from the "Compile" section. Once it's done, you can navigate to the "Network > Explorer" page and find the `phalaRegistry.CodeUploaded` event with the code hash:
-
-> phalaRegistry.CodeUploaded
-> 0x911dd86247a3f196379e70c14357bdbb398b6283842d4bfc2213d44b5680eb2c (example, may vary in your build)
-
-![](./static/fat-contract-upload-flipper-code.gif)
-
-**Next step.** Please note the code hash. Then navigate back to "Developer > Extrinsic" and select
-
-```
-phalaRegistry.instantiateContract()
-```
-
-- `codeIndex`: WasmCode(0x911dd86247a3f196379e70c14357bdbb398b6283842d4bfc2213d44b5680eb2c) (example)
-- `data`: 0xed4b9d1b (the default() function)
-- `salt`: 0x
-- `deployWorker`: 0x3a3d45dc55b57bf542f4c6ff41af080ec675317f4ed50ae1d2713bf9f892692d
-
-You should be able to see the following event:
-
-> ```
-> phalaRegistry.ContractInstantiated
->
-> SpCoreSr25519Public ([u8;32])
->   0x4c66c3bf1e1b4dd02e7666e578e41570e79a544239d8ec77075651ba7879de5e (contract key)
-> PhalaTypesContractContractInfo
->   {
->     deployer: 45R2pfjQUW2s9PQRHU48HQKLKHVMaDja7N3wpBtmF28UYDs2 (Alice)
->     groupId: 1
->     salt:
->     codeIndex: {
->       WasmCode: 0x911dd86247a3f196379e70c14357bdbb398b6283842d4bfc2213d44b5680eb2c (example)
->     }
->     instantiateData: 0xed4b9d1b
->   }
-> ```
-
-![](./static/fat-contract-instantiate-code.gif)
-
-**The final step.** Navigate to "Developer > Chain State" to get the contract id:
-
-```
-phalaRegistry.contractKey()
-```
-
-- include option: off
-
-> ```
-> [
->   [
->     [
->       0xcf4b9fd7eb64dc1fe5ca550e715a49fae9f5a2de88afd3c32daa137fcc8ca5b7 (contract id)
->     ]
->     0x4c66c3bf1e1b4dd02e7666e578e41570e79a544239d8ec77075651ba7879de5e (contract key)
->   ]
-> ]
-> ```
-
-Now the contract is up and running at your worker (0x3a3d45dc55b57bf542f4c6ff41af080ec675317f4ed50ae1d2713bf9f892692d), with the contract id `0xcf4b9fd7eb64dc1fe5ca550e715a49fae9f5a2de88afd3c32daa137fcc8ca5b7`.
-
-Please keep the contract id. It will be used in the next step.
+> Handle instantiation failure: For now, the contract execution log is not directly available to the developers. Join our [Discord](https://discord.gg/myBmQu5) and we can help forward the Worker logs if necessary.
 
 ## Interact with the contract
 
