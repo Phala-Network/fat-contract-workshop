@@ -64,30 +64,30 @@ $ yarn --version
 - Install Polkadot.js extension and import the Phala gas account following the [tutorial](https://wiki.phala.network/en-us/general/applications/01-polkadot-extension/)
     - Gas account seed: `misery blind turtle lottery random chalk flight fresh cute vanish elephant defy`
 - Connect to Phala Testnet
-    - Open https://polkadot.js.org/apps/
-    - Click left top to switch network
-    - Choose `Test Networks` - `Phala(PoC 5)` and click `Switch` at the top
-- Send some coins to your own account (limited, don't be evil)
+    - Open https://polkadot.js.org/apps/;
+    - Click left top to switch network;
+    - Choose `Test Networks` - `Phala(PoC 5)` and click `Switch` at the top;
+- Send some coins to your own account (limited, don't be evil);
     - Create your own account following [tutorial](https://wiki.phala.network/en-us/general/applications/01-polkadot-extension/#create-new-account)
-    - Send some coins
+    - Send some coins.
     ![](https://i.imgur.com/l3I14ri.png)
 
 ## Play with our deployed version
 
 - Frontend: https://phala-js-sdk-example.netlify.app/
 ![](https://i.imgur.com/h761Y6C.png)
-    1. Connect your wallet
-    2. Load the deployed contract
+    1. Connect your wallet;
+    2. Load the deployed contract;
         - Substrate endpoint: `wss://poc5.phala.network/ws`
         - Secure Worker endpoints: `https://poc5.phala.network/tee-api-{n}` (n = 1 to 8)
         - Contract ID: `0x56fd8aa93c5bf2d54aac23398777077f24404527c4a495376170d2c8535722cc`
         - ABI: copy from `metadata.json` ([prebuilt copy](https://gist.githubusercontent.com/h4x3rotab/4a55b7c6ac9ad50f2f803a1edc93456e/raw/12e0b2d8afacba2fb8de664744fb64c6ed507290/metadata.json))
-    3. Click `Sign a Certificate`, this will generate a certificate to encrypt your traffic to/from the contract
-    4. Follow the instruction, copy the contents and create a *public* Github Gist with it
-    5. Open the **RAW** file, and copy the link
+    3. Click `Sign a Certificate`, this will generate a certificate to encrypt your traffic to/from the contract;
+    4. Follow the instruction, copy the contents and create a *public* Github Gist with it;
+    5. Open the **RAW** file, and copy the link;
     ![](https://i.imgur.com/YqgesNm.png)
-    6. Paste the link to the box and click `Verify`
-    7. The redeem code box in will refresh every 5s. It should show your code once the verification is successful
+    6. Paste the link to the box and click `Verify`;
+    7. The redeem code box in will refresh every 5s. It should show your code once the verification is successful.
 
 ## Compile the contract
 
@@ -149,9 +149,9 @@ Choose `Developer` - `Extrinsics`, and select the extrinsic `phalaFatContracts` 
 
 There are three events to observe, all these events contain your contract ID
 
-- `phalaFatContracts.Instantiating`, the chain has receive your request and start instanting
-- `phalaFatContracts.PubkeyAvailable`, the gatekeeper has generated the contract key to encrypt its state and input/output
-- `phalaFatContracts.Instantiated`, your contract is successfully instantiated
+- `phalaFatContracts.Instantiating`, the chain has receive your request and start instanting;
+- `phalaFatContracts.PubkeyAvailable`, the gatekeeper has generated the contract key to encrypt its state and input/output;
+- `phalaFatContracts.Instantiated`, your contract is successfully instantiated.
 
 You can go to `Developer` - `Chain state` and select the extrinsic `phalaFatContracts` and `contracts` to see all the contracts.
 
@@ -159,108 +159,51 @@ You can go to `Developer` - `Chain state` and select the extrinsic `phalaFatCont
 
 ## Interact with the contract
 
-### Prerequest
+Phala provides [js-sdk](https://github.com/Phala-Network/js-sdk) to simplified the frontend development. It already contains the frontend for the demo contract, check its [example folder](https://github.com/Phala-Network/js-sdk/tree/main/packages/example).
 
-1. Install Node (>= v14) and yarn.
-2. Download and build Phala-Network/js-sdk (**fat-contract-workshop** branch)
+Follow the steps to run the frontend
 
-    ```sh
-    git clone --branch fat-contract-workshop https://github.com/Phala-Network/js-sdk.git
+1. Download Phala-Network/js-sdk
+
+    ```bash
+    git clone  https://github.com/Phala-Network/js-sdk.git
     ```
 
-3. Edit `./packages/example/.env` to set the API endpoints. If you run a customized deployment please adjust according to your configuration:
+2. Compile and run the frontend. By default it will serve the app at <http://localhost:3000>:
 
-    ```
-    NEXT_PUBLIC_BASE_URL=http://localhost:8000
-    NEXT_PUBLIC_WS_ENDPOINT=ws://localhost:9944
-    ```
+    ```bash
+    cd js-sdk
 
-4. Compile and run the frontend. By default it will serve the app at <http://localhost:3000>:
-
-    ```sh
     yarn
     yarn dev
     ```
 
-### Interact
+You shall see the identical page as we have [deployed](#play-with-our-deployed-version).
 
-Open the app in your browser. You can use it to flip the bit in the flipper contract, and read the current boolean value in the contract.
+## Challenge: Fill in the missing code
 
-1. Authorize the app for the Polkadot.js Extension access via the pop-up window
-2. Choose an account with some balances (Alice or Bob) in the right-top drop-down
-3. Click "Sign Certificate"
-
-    > This step is necessary for Fat Contract Dapp because we use a certificate chain to do end-to-end encryption. Whenever you selected a new account, just sign a new certificate.
-
-4. Paste the content of `metadata.json` to the ABI text box, and enter the contract id
-
-    > Every time when you deploy a new contract, you will need to update the ABI and the contract address.
-
-    > ![](./static/fat-contract-copy-metadata-create-contract-gui.gif)
-5. Click "Query" to call `get()`, and read the value
-6. Click "Command" to call `flip()`
-7. After around 6s, click "Query" to call `get()`. You should read a flipped value.
-
-    > The 6s delay is due to the block finalization.
-
-    > ![](./static/fat-contract-interact-contract.gif)
-
-![](./static/demo-ui.png)
-
-## Challenge: "Secret" Flipper
-
-We leave a challenge for you to explore the confidentiality of Phala's Fat Contract.
-
-### How is it possible?
-
-Fat Contracts are confidential by default. All the contract inputs, outputs, and states are encrypted. The data is only decrypted after arriving at the [Secure Enclave](https://www.anjuna.io/what-is-a-secure-enclave) (where the contract executor runs). As a result, although you can see the transactions and storage on the blockchain, they are just encrypted data.
-
-So the only way to read some data from the contract is to send a **query**.
-
-The query is not only end-to-end encrypted but also signed with your wallet key. In this way, the identity is attached to a query. With the signature attached, the ink! contract can determine the identity of the sender. This is done via the Phala Fat Contract executor, who validates the signature before running the contract.
-
-More specifically, in an ink! query function, you determine the response based on the sender securely:
-
-```rust
-pub fn get(&self) -> Option<bool> {
-    if self.env().caller() == self.admin {
-        // The caller is the admin. Let's return some result
-        // ...
-    } else {
-        // Otherwise, we can return something else
-        // ...
-    }
-}
-```
-
-### Why cannot the vanilla ink! support storing secret?
-
-In the vanilla ink! smart contract, each "query" also comes with a sender. The above code can of course compile and execute without any error.
-
-However, it doesn't protect any secret. The sender field in the query is just an account (public key). In other words, anyone can feel free to specify any account as the query sender. The blockchain node doesn't require the sender to sign the query with its wallet.
-
-Indeed, it doesn't make a lot of sense to require the signature. In an ordinary blockchain, all the data must be transparent and shared between all the nodes, as required by the consensus mechanism. As long as you run a full node, you get a full copy of the blockchain database. The query function just reads the data from the blockchain. Assuming we add the signature check just like what we do in Fat Contract, anyone can still make a modified version of the client to perform the query function to bypass any check. However, this doesn't work at Phala Network, because only an unmodified worker program (pRuntime) running in a canonical Secure Enclave can load the contract and get the key to decrypt the contract data. The Secure Enclave provides a strong layer of protection.
-
-### Exercise
-
-1. Modify the `get()` function in the Flipper contract to only return the result to the contract deployer, otherwise return an empty result
-2. Change the js-app frontend and test it with two accounts (Alice to deploy the contract, and Bob to read the contract)
-
-> Tip: After you have changed the return type of `get()` function, please don't forget to redeploy the contract, and replace the ABI in the frontend app.
+We leave two challenges (labeled by `TODO`) for you to explore.
+- The first is about adding the necessary access control to the update redeem code function, you will learn about how to access the contract metadata through the `self.env()` function;
+- The second is about check to prevent a double redemption of the code.
 
 ### Solution
 
-Please check the `solution` branch.
+Please check the `http-solution` branch.
 
 ## Appendix
 
-### Polkadot.js Extension and the common seeds
+## Endpoints
 
-Phala App only accepts the official [Polkadot.js Extension](https://polkadot.js.org/extension/) as the wallet provider. In the local testnet, there are a few built-in well-known accounts for testing. To access them from the Polkadot.js Extension, you should import them to the extension with their raw seed. It's suggested to import at least Alice and Bob:
-
-| Key       | Raw seed                                                           |
-|-----------|--------------------------------------------------------------------|
-| //Alice   | 0xe5be9a5092b81bca64be81d212e7f2f9eba183bb7a90954f7b76361f6edb5c0a |
-| //Bob     | 0x398f0c28f98885e046333d4a41c19cee4c37368a9832c6502f6cfd182e2aef89 |
-| //Charlie | 0xbc1ede780f784bb6991a585e4f6e61522c14e1cae6ad0895fb57b9a205a8f938 |
-| //Dave    | 0x868020ae0687dda7d57565093a69090211449845a7e11453612800b663307246 |
+- Chain: `wss://poc5.phala.network/ws`
+    - Polkadot.js quick link: https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fpoc5.phala.network%2Fws#/explorer
+- Workers (with their identity key)
+  - https://poc5.phala.network/tee-api-1
+      - 0x94a2ded4c77fbb910943f7e452e4d243ee5b60bf1a838a911acf2ffd4bae9b63
+  - https://poc5.phala.network/tee-api-2
+      - 0x50ede2dd7c65716a2d55bb945dfa28d951879154f832e049851d7882c288db76
+  - https://poc5.phala.network/tee-api-3
+      - 0xfe26077a6030e505136855100f335503ca40f6e8afa149b0c6c618e81c1cb53b
+  - https://poc5.phala.network/tee-api-4
+      - 0x6cfc1282880305c7691f0941b98089b9da17acde43b66ef2220022797bb3e370
+  - https://poc5.phala.network/tee-api-5
+      - 0xbed94c30d660a1de5a499e38f9f3afe9ccc1ef5f901530efd48de641679fbc7d
