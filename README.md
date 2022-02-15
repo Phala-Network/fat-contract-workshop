@@ -59,39 +59,58 @@ $ yarn --version
 # 1.22.17
 ```
 
-## Create a new ink! project
+## Create Polkadot Account to use Phala Testnet
 
-```sh
-cargo contract new flipper
-```
+- Install Polkadot.js extension and import the Phala gas account following the [tutorial](https://wiki.phala.network/en-us/general/applications/01-polkadot-extension/)
+    - Gas account seed: `misery blind turtle lottery random chalk flight fresh cute vanish elephant defy`
+- Connect to Phala Testnet
+    - Open https://polkadot.js.org/apps/
+    - Click left top to switch network
+    - Choose `Test Networks` - `Phala(PoC 5)` and click `Switch` at the top
+- Send some coins to your own account (limited, don't be evil)
+    - Create your own account following [tutorial](https://wiki.phala.network/en-us/general/applications/01-polkadot-extension/#create-new-account)
+    - Send some coins
+    ![](https://i.imgur.com/l3I14ri.png)
 
-> Or you can clone this repo instead, but please pay attention to the filename.
->
-> ```sh
-> git clone https://github.com/Phala-Network/fat-contract-workshop.git
-> ```
+## Play with our deployed version
+
+- Frontend: https://phala-js-sdk-example.netlify.app/
+![](https://i.imgur.com/h761Y6C.png)
+    1. Connect your wallet
+    2. Load the deployed contract
+        - Substrate endpoint: `wss://poc5.phala.network/ws`
+        - Secure Worker endpoints: `https://poc5.phala.network/tee-api-{n}` (n = 1 to 8)
+        - Contract ID: `0x56fd8aa93c5bf2d54aac23398777077f24404527c4a495376170d2c8535722cc`
+        - ABI: copy from `metadata.json` ([prebuilt copy](https://gist.githubusercontent.com/h4x3rotab/4a55b7c6ac9ad50f2f803a1edc93456e/raw/12e0b2d8afacba2fb8de664744fb64c6ed507290/metadata.json))
+    3. Click `Sign a Certificate`, this will generate a certificate to encrypt your traffic to/from the contract
+    4. Follow the instruction, copy the contents and create a *public* Github Gist with it
+    5. Open the **RAW** file, and copy the link
+    ![](https://i.imgur.com/YqgesNm.png)
+    6. Paste the link to the box and click `Verify`
+    7. The redeem code box in will refresh every 5s. It should show your code once the verification is successful
 
 ## Compile the contract
-> Please note that you will need to use the nightly builds to build the contract. Run the following to resolve build failures or check out the [ink! repo](https://github.com/paritytech/cargo-contract#build-requires-the-nightly-toolchain).
->```sh
-> cargo +nightly contract build
->```
 
-```sh
-cd flipper
-cargo contract build
+```bash
+cargo +nightly contract build
+```
+
+Also test to ensure everything is fine
+
+```bash
+cargo +nightly contract test
 ```
 
 You will find the compile result at `./target/ink`:
 
-> ```bash
-> ~ ls -h target/ink
-> flipper.contract  flipper.wasm  metadata.json
-> ```
+```bash
+$ ls -h target/ink
+# fat_sample.wasm  metadata.json ...
+```
 
 ## Deploy
 
-Collect the above three files and create the contract in a local testnet.
+Collect the above two files and create the contract in Phala Testnet (PoC 5).
 
 ### Run the local testnet
 
