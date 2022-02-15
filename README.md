@@ -95,7 +95,7 @@ $ yarn --version
     1. Connect your wallet;
     2. Load the deployed contract;
         - Substrate endpoint: `wss://poc5.phala.network/ws`
-        - Secure Worker endpoints: `https://poc5.phala.network/tee-api-{n}` (n = 1 to 8)
+        - Secure Worker endpoints: `https://poc5.phala.network/tee-api-{n}` (n = 1 to 5)
         - Contract ID: `0x56fd8aa93c5bf2d54aac23398777077f24404527c4a495376170d2c8535722cc`
         - ABI: copy from `metadata.json` ([prebuilt copy](https://gist.githubusercontent.com/h4x3rotab/4a55b7c6ac9ad50f2f803a1edc93456e/raw/12e0b2d8afacba2fb8de664744fb64c6ed507290/metadata.json))
     3. Click `Sign a Certificate`, this will generate a certificate to encrypt your traffic to/from the contract;
@@ -175,14 +175,14 @@ You can go to `Developer` - `Chain state` and select the extrinsic `phalaFatCont
 
 ## Interact with the contract
 
-Phala provides [js-sdk](https://github.com/Phala-Network/js-sdk) to simplified the frontend development. It already contains the frontend for the demo contract, check its [example folder](https://github.com/Phala-Network/js-sdk/tree/main/packages/example).
+Phala provides [js-sdk](https://github.com/Phala-Network/js-sdk/tree/ethdenver-2022) to simplified the frontend development. It already contains the frontend for the demo contract, check its [example folder](https://github.com/Phala-Network/js-sdk/tree/ethdenver-2022/packages/example).
 
 Follow the steps to run the frontend
 
 1. Download Phala-Network/js-sdk
 
     ```bash
-    git clone  https://github.com/Phala-Network/js-sdk.git
+    git clone --branch ethdenver-2022 https://github.com/Phala-Network/js-sdk.git
     ```
 
 2. Compile and run the frontend. By default it will serve the app at <http://localhost:3000>:
@@ -204,13 +204,13 @@ We leave two challenges (labeled by `TODO`) for you to explore.
 
 ### Solution
 
-Please check the `http-solution` branch.
+Please check the `ethdenver-2022-solution` branch.
 
 ## Appendix
 
 ## Endpoints
 
-- Chain: `wss://poc5.phala.network/ws`
+- Chain: `wss://poc5.phala.network/ws` / `wss://poc5-2.phala.network/ws`
     - Polkadot.js quick link: https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fpoc5.phala.network%2Fws#/explorer
 - Workers (with their identity key)
   - https://poc5.phala.network/tee-api-1
@@ -223,3 +223,13 @@ Please check the `http-solution` branch.
       - 0x6cfc1282880305c7691f0941b98089b9da17acde43b66ef2220022797bb3e370
   - https://poc5.phala.network/tee-api-5
       - 0xbed94c30d660a1de5a499e38f9f3afe9ccc1ef5f901530efd48de641679fbc7d
+  - https://poc5-2.phala.network/tee-api-1
+      - 0x6229b2fff6f6bd234d5a1bacceb4b5ad8359b771251a0c15259e34c0820c891c
+  - https://poc5-2.phala.network/tee-api-2
+      - 0x202ff02a30d85c22095219f93897ac1e760ffdaf65b4fc838ffd161458e8025d
+  - https://poc5-2.phala.network/tee-api-3
+      - 0x5435b1117ea605421d46e0bb017b44b07c46fe7d44a8686ad9a191d09021d92b
+  - https://poc5-2.phala.network/tee-api-4
+      - 0x4c6ea744ce31456eb2740e8499b2945ec541c499d36aed29c767ddedc5cb7e73
+  - https://poc5-2.phala.network/tee-api-5
+      - 0x6cc3ac47b16b62a4a39350d09bb76540baa31cd0146192ea8d2064ee1b8b3765
