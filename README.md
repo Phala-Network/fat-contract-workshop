@@ -23,16 +23,16 @@ This workshop will demonstrate how to use Fat Contract's HTTP request capability
 The Fat Contract "Redeem POAP" links on-chain accounts to Github accounts and then distributes POAP redeem code to the verified users. The simple protocol is listed below:
 
 1. The user should create a Github Gist with a special format with the account id: "This gist is owned by address: 0x01234...."
-2. The user submit the raw file url to the Fat Contract by a _query_ ("https://gist.githubusercontent.com/[username]/...")
+2. The user submits the raw file URL to the Fat Contract by a _query_ ("https://gist.githubusercontent.com/[username]/[gist-id]/raw/...")
 3. The contract then
-    - Verify the URL is valid
-    - Fetch the content of the URL (by Fat Contract's HTTP in Query feature)
-    - Verify the account claim in the gist is valid
-    - Extract the Github username from the URL and the account id from the claim
-    - Produce a `Attestation` struct with the Github username and the account id, and sign it with a contract-owned key (by Fat Contract's confidentiality and cryptographic feature)
+    - Verifies the URL is valid
+    - Fetches the content of the URL (by Fat Contract's HTTP in Query feature)
+    - Verifies the account claim in the gist is valid
+    - Extracts the Github username from the URL and the account id from the claim
+    - Produces an `Attestation` struct with the Github username and the account id, and signs it with a contract-owned key (by Fat Contract's confidentiality and cryptographic feature)
 4. The user receives the `SignedAttestation`, and then submit the attestation to the contract by a `redeem` _command_
 5. The contract verifies the attestation, and then links the Github username and the account id
-6. If the user didn't claim any POAP, it reveal a POAP code to the user after the verficiation
+6. If the user didn't claim any POAP, it reveals a POAP code to the user after the verification
 
 ## Environment Preparation
 
