@@ -319,6 +319,40 @@ mod fat_sample {
         }
 
         #[ink::test]
+        fn admin_access_control() {
+            use pink_extension::chain_extension::{test::*, HttpResponse};
+            // Mock derive key call (a pregenerated key pair)
+            ink_env::test::register_chain_extension(MockDeriveSr25519Pair::new(|_| {
+                (
+                    hex::decode("78003ee90ff2544789399de83c60fa50b3b24ca86c7512d0680f64119207c80ab240b41344968b3e3a71a02c0e8b454658e00e9310f443935ecadbdd1674c683").unwrap(),
+                    hex::decode("ce786c340288b79a951c68f87da821d6c69abd1899dff695bda95e03f9c0b012").unwrap()
+                )
+            }));
+            // Test accounts
+            let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
+                .expect("Cannot get accounts");
+
+            // Construct a contract (deployed by `accounts.alice` by default)
+            let mut contract = FatSample::default();
+
+            // Alice should be able to set the code
+            assert!(contract.admin_set_poap_code(vec!["1".to_string()]).is_ok());
+
+            // Switch to Bob
+            let callee = ink_env::account_id::<ink_env::DefaultEnvironment>();
+            ink_env::test::push_execution_context::<ink_env::DefaultEnvironment>(
+                accounts.bob,
+                callee,
+                1000000,
+                1000000,
+                ink_env::test::CallData::new(ink_env::call::Selector::new([0x00; 4])), // dummy,
+            );
+
+            // Bob should not be able set the code
+            assert!(contract.admin_set_poap_code(vec!["1".to_string()]).is_err())
+        }
+
+        #[ink::test]
         fn end_to_end() {
             use pink_extension::chain_extension::{test::*, HttpResponse};
 
