@@ -36,7 +36,7 @@ The following toolchains are needed:
         - or download the [release](https://github.com/WebAssembly/binaryen/releases/tag/version_105) and put it under your $PATH
     - Install contract toolchain: `cargo install cargo-contract --force`
 - Install frontend toolchain
-    - Node.js (>=v14), follow the [official tutorial](https://nodejs.org/en/download/package-manager/)
+    - Node.js (>=v16), follow the [official tutorial](https://nodejs.org/en/download/package-manager/)
     - Yarn (v1): `npm install --global yarn`
 
 Check your installation with
