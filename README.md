@@ -1,6 +1,6 @@
 # Fat Contract Workshop
 
-This is a simple workshop demonstrating how to write a Phala confidential-preserving ink! smart contract on Phala (a.k.a, _Fat Contract_).
+This is a workshop demonstrating how to write a *Fat Contract* with its HTTP request capability on Phala.
 
 ## Introduction
 
@@ -14,23 +14,50 @@ Instead, it aims to provide the rich features that ordinary smart contracts cann
 - Strong consistency: consensus-sensitive operations remain globally consistent
 - Confidentiality: contract state is hidden by default unless you specifically expose it via the read call
 
-> Network access feature is available in native contracts now. It will be supported in ink! contracts soon.
-
 Fat Contract is 100% compatible with Substrate's `pallet-contracts`. It fully supports the unmodified ink! smart contracts. Therefore you can still stick to your favorite toolchain including `cargo-contract`,  `@polkadot/contract-api`, and the Polkadot.js Extension.
 
-This workshop will demonstrate how to deploy an ink! smart contract on a local Phala testnet, and show how to make a "secret flip" Dapp that only the contract owner can see the flip result.
+This workshop will demonstrate how to use Fat Contract's HTTP request capability to associate a Phala account with a Github user. Such functionality serves as the core for [Decentralized Identity (DID)](https://www.gsma.com/identity/decentralised-identity). Further, we will show how to deploy your contract in [Phala Testnet](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fpoc5.phala.network%2Fws#/explorer) and interact with it through our [frontend SDK](https://github.com/Phala-Network/js-sdk).
 
-## Prepare
+## Environment Preparation
 
-1. [Cargo](https://rustup.rs/)
+An operating system of macOS or Linux systems like Ubuntu 18.04/20.04 is recommended for the workshop.
+- For macOS users, we recommend to use the Homebrew package manager to install the dependencies
+- For other Linux distribution users, use the package manager with the system like Apt/Yum
 
-2. [Binaryen wasm toolchain](https://github.com/WebAssembly/binaryen). Install via a package manager or just put the release binaries to your $PATH environment. You will need at least version 99.
+The following toolchains are needed:
 
-3. ink! contract toolkit (This will install the latest version. As of writing, the latest version is `cargo-contract 0.16.0-unknown-x86_64-linux-gnu`)
+- Rust toolchain
+    - Install rustup, rustup is the "package manager" of different versions of Rust compilers: `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
+    - This will install `rustup` and `cargo`
+- Ink! Contract toolchain
+    - Install [binaryen](https://github.com/WebAssembly/binaryen) with
+        - Homebrew for macOS: `brew install binaryen`
+        - Apt for Ubuntu: `sudo apt install binaryen`
+        - or download the [release](https://github.com/WebAssembly/binaryen/releases/tag/version_105) and put it under your $PATH
+    - Install contract toolchain: `cargo install cargo-contract --force`
+- Install frontend toolchain
+    - Node.js (>=v14), follow the [official tutorial](https://nodejs.org/en/download/package-manager/)
+    - Yarn (v1): `npm install --global yarn`
 
-    ```sh
-    cargo install cargo-contract --force
-    ```
+Check your installation with
+
+```bash
+$ rustup toolchain list
+# stable-x86_64-unknown-linux-gnu (default)
+# nightly-x86_64-unknown-linux-gnu
+
+$ cargo --version
+# cargo 1.58.0 (f01b232bc 2022-01-19)
+
+$ cargo contract --version
+# cargo-contract 0.17.0-unknown-x86_64-linux-gnu
+
+$ node --version
+# v17.5.0
+
+$ yarn --version
+# 1.22.17
+```
 
 ## Create a new ink! project
 
@@ -215,7 +242,7 @@ Open the app in your browser. You can use it to flip the bit in the flipper cont
 7. After around 6s, click "Query" to call `get()`. You should read a flipped value.
 
     > The 6s delay is due to the block finalization.
- 
+
     > ![](./static/fat-contract-interact-contract.gif)
 
 ![](./static/demo-ui.png)
