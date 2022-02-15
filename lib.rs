@@ -76,11 +76,10 @@ mod fat_sample {
         /// overrode at any time.
         #[ink(message)]
         pub fn admin_set_poap_code(&mut self, code: Vec<String>) -> Result<(), Error> {
-            // The caller must be the admin
-            let caller = self.env().caller();
-            if caller != self.admin {
-                return Err(Error::NoPermission);
-            }
+            // TODO: add access control to only allow the self.admin to set the poap code
+            //
+            // Hint: get the metadata about the contract through self.env()
+
             // Update the code
             self.poap_code = code;
             Ok(())
@@ -101,21 +100,17 @@ mod fat_sample {
             if attestation.account_id != self.env().caller() {
                 return Err(Error::NoPermission);
             }
+
             let username = attestation.username;
             let account = attestation.account_id;
-            // The username and the account mustn't be linked
-            if self.username_by_account.get(&account).is_some() {
-                return Err(Error::UsernameAlreadyInUse);
-            }
-            if self.account_by_username.get(&username).is_some() {
-                return Err(Error::AccountAlreadyInUse);
-            }
-            // Link the accounts, and prevent double redemptions
-            self.username_by_account.insert(&account, &username);
-            self.account_by_username.insert(&username, &account);
+            // TODO: add logic to prevent double redemptions
+            //
+            // Hint: both the username and the account are allowed to be used only ONCE
+
             self.redeem_by_account
                 .insert(&account, &self.total_redeemed);
             self.total_redeemed += 1;
+
             Ok(())
         }
 
@@ -408,7 +403,6 @@ mod fat_sample {
             assert_eq!(contract.redeem_by_account.get(accounts.alice), Some(0));
             // Check my redemption code
             assert_eq!(contract.my_poap(), Some("code0".to_string()))
-            // TODO: check bob reading the contract?
         }
     }
 }
