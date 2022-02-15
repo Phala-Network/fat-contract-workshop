@@ -96,7 +96,7 @@ $ yarn --version
     2. Load the deployed contract;
         - Substrate endpoint: `wss://poc5.phala.network/ws`
         - Secure Worker endpoints: `https://poc5.phala.network/tee-api-{n}` (n = 1 to 5)
-        - Contract ID: `0x56fd8aa93c5bf2d54aac23398777077f24404527c4a495376170d2c8535722cc`
+        - Contract ID: `0x6cad353bad2232931ae7878b2013439bfca2576cd0c0d2c72093dc4c63c68568`
         - ABI: copy from `metadata.json` ([prebuilt copy](https://gist.githubusercontent.com/h4x3rotab/4a55b7c6ac9ad50f2f803a1edc93456e/raw/12e0b2d8afacba2fb8de664744fb64c6ed507290/metadata.json))
     3. Click `Sign a Certificate`, this will generate a certificate to encrypt your traffic to/from the contract;
     4. Follow the instruction, copy the contents and create a *public* Github Gist with it;
