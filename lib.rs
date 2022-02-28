@@ -10,9 +10,10 @@ mod fat_sample {
         string::{String, ToString},
         vec::Vec,
     };
-    use ink_storage::{lazy::Mapping, traits::SpreadAllocate};
+    use ink_storage::{traits::SpreadAllocate, Mapping};
     use pink::{
-        chain_extension::SigType, derive_sr25519_pair, http_get, sign, verify, PinkEnvironment,
+        chain_extension::SigType, derive_sr25519_key, get_public_key, http_get, sign, verify,
+        PinkEnvironment,
     };
     use scale::{Decode, Encode};
 
@@ -54,7 +55,8 @@ mod fat_sample {
         #[ink(constructor)]
         pub fn default() -> Self {
             // Generate a Sr25519 key pair
-            let (privkey, pubkey) = derive_sr25519_pair!(b"gist-attestation-key");
+            let privkey = derive_sr25519_key!(b"gist-attestation-key");
+            let pubkey = get_public_key!(&privkey, SigType::Sr25519);
             // Save sender as the contract admin
             let admin = Self::env().caller();
 
@@ -320,14 +322,16 @@ mod fat_sample {
 
         #[ink::test]
         fn admin_access_control() {
-            use pink_extension::chain_extension::{test::*, HttpResponse};
+            use pink_extension::chain_extension::mock;
             // Mock derive key call (a pregenerated key pair)
-            ink_env::test::register_chain_extension(MockDeriveSr25519Pair::new(|_| {
-                (
-                    hex::decode("78003ee90ff2544789399de83c60fa50b3b24ca86c7512d0680f64119207c80ab240b41344968b3e3a71a02c0e8b454658e00e9310f443935ecadbdd1674c683").unwrap(),
-                    hex::decode("ce786c340288b79a951c68f87da821d6c69abd1899dff695bda95e03f9c0b012").unwrap()
-                )
-            }));
+            mock::mock_derive_sr25519_key(|_| {
+                hex::decode("78003ee90ff2544789399de83c60fa50b3b24ca86c7512d0680f64119207c80ab240b41344968b3e3a71a02c0e8b454658e00e9310f443935ecadbdd1674c683").unwrap()
+            });
+            mock::mock_get_public_key(|_| {
+                hex::decode("ce786c340288b79a951c68f87da821d6c69abd1899dff695bda95e03f9c0b012")
+                    .unwrap()
+            });
+
             // Test accounts
             let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
                 .expect("Cannot get accounts");
@@ -354,17 +358,18 @@ mod fat_sample {
 
         #[ink::test]
         fn end_to_end() {
-            use pink_extension::chain_extension::{test::*, HttpResponse};
+            use pink_extension::chain_extension::{mock, HttpResponse};
 
             // Mock derive key call (a pregenerated key pair)
-            ink_env::test::register_chain_extension(MockDeriveSr25519Pair::new(|_| {
-                (
-                    hex::decode("78003ee90ff2544789399de83c60fa50b3b24ca86c7512d0680f64119207c80ab240b41344968b3e3a71a02c0e8b454658e00e9310f443935ecadbdd1674c683").unwrap(),
-                    hex::decode("ce786c340288b79a951c68f87da821d6c69abd1899dff695bda95e03f9c0b012").unwrap()
-                )
-            }));
-            ink_env::test::register_chain_extension(MockSign::new(|_| b"mock-signature".to_vec()));
-            ink_env::test::register_chain_extension(MockVerify::new(|_| true));
+            mock::mock_derive_sr25519_key(|_| {
+                hex::decode("78003ee90ff2544789399de83c60fa50b3b24ca86c7512d0680f64119207c80ab240b41344968b3e3a71a02c0e8b454658e00e9310f443935ecadbdd1674c683").unwrap()
+            });
+            mock::mock_get_public_key(|_| {
+                hex::decode("ce786c340288b79a951c68f87da821d6c69abd1899dff695bda95e03f9c0b012")
+                    .unwrap()
+            });
+            mock::mock_sign(|_| b"mock-signature".to_vec());
+            mock::mock_verify(|_| true);
 
             // Test accounts
             let accounts = ink_env::test::default_accounts::<ink_env::DefaultEnvironment>()
@@ -379,9 +384,9 @@ mod fat_sample {
             // Generate an attestation
             //
             // Mock a http request first (the 256 bits account id is the pubkey of Alice)
-            ink_env::test::register_chain_extension(MockHttpRequest::new(|_| {
+            mock::mock_http_request(|_| {
                 HttpResponse::ok(b"This gist is owned by address: 0x0101010101010101010101010101010101010101010101010101010101010101".to_vec())
-            }));
+            });
             let result = contract.attest_gist("https://gist.githubusercontent.com/h4x3rotab/0cabeb528bdaf30e4cf741e26b714e04/raw/620f958fb92baba585a77c1854d68dc986803b4e/test%2520gist".to_string());
             assert!(result.is_ok());
             let attestation = result.unwrap();
