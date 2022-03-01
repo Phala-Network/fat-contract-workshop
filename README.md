@@ -88,7 +88,9 @@ $ yarn --version
     - Send some coins.
     ![](https://i.imgur.com/l3I14ri.png)
 
-## Play with our deployed version
+## **[Deprecated]** Play with our deployed version
+
+> The official contract has been removed after Testnet update. You can deploy your own version and interact with it.
 
 - Frontend: https://phala-js-sdk-example.netlify.app/
 ![](https://i.imgur.com/h761Y6C.png)
@@ -144,7 +146,7 @@ Code upload could failed if the wasm code is already on chain.
 
 Choose `Developer` - `Extrinsics`, and select the extrinsic `phalaFatContracts` and `instantiateCode`. We explain the arguments as follow:
 - `codeIndex`: the code to use, choose `WasmCode` and type in the hash of you uploaded code
-- `data`: the instantiation argument. We shall call the constructor function of the contract will the specific function selector, This can be found in the `metadata.json` (in this case, `0xed4b9d1b`)
+- `data`: the instantiation argument. We shall call the constructor function of the contract will the specific function selector. This can be found in the `metadata.json` (in this case, `0xed4b9d1b`)
 ```json
 ...
     "constructors": [
@@ -159,7 +161,7 @@ Choose `Developer` - `Extrinsics`, and select the extrinsic `phalaFatContracts` 
 ...
 ```
 - `salt`: some random bytes to prevent collision, like `0x0` or `0x1234`
-- `deployTo`: we have prepared a cluster with `0x0000000000000000000000000000000000000000000000000000000000000002`. In the future, customized cluster will be enabled.
+- `deployTo`: we have prepared a cluster with `0x0000000000000000000000000000000000000000000000000000000000000001`. In the future, customized cluster will be enabled.
 
 ![](static/deploy-instantiate.png)
 
@@ -228,7 +230,7 @@ Please check the `ethdenver-2022-solution` branch.
 
 ### Endpoints
 
-- Chain: `wss://poc5.phala.network/ws` / `wss://poc5-2.phala.network/ws`
+- Chain: `wss://poc5.phala.network/ws`
     - Polkadot.js quick link: https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fpoc5.phala.network%2Fws#/explorer
 - Workers (with their identity key)
   - https://poc5.phala.network/tee-api-1
@@ -241,13 +243,3 @@ Please check the `ethdenver-2022-solution` branch.
       - 0x6cfc1282880305c7691f0941b98089b9da17acde43b66ef2220022797bb3e370
   - https://poc5.phala.network/tee-api-5
       - 0xbed94c30d660a1de5a499e38f9f3afe9ccc1ef5f901530efd48de641679fbc7d
-  - https://poc5-2.phala.network/tee-api-1
-      - 0x6229b2fff6f6bd234d5a1bacceb4b5ad8359b771251a0c15259e34c0820c891c
-  - https://poc5-2.phala.network/tee-api-2
-      - 0x202ff02a30d85c22095219f93897ac1e760ffdaf65b4fc838ffd161458e8025d
-  - https://poc5-2.phala.network/tee-api-3
-      - 0x5435b1117ea605421d46e0bb017b44b07c46fe7d44a8686ad9a191d09021d92b
-  - https://poc5-2.phala.network/tee-api-4
-      - 0x4c6ea744ce31456eb2740e8499b2945ec541c499d36aed29c767ddedc5cb7e73
-  - https://poc5-2.phala.network/tee-api-5
-      - 0x6cc3ac47b16b62a4a39350d09bb76540baa31cd0146192ea8d2064ee1b8b3765
