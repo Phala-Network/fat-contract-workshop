@@ -37,7 +37,7 @@ mod fat_sample {
         account_by_username: Mapping<String, AccountId>,
     }
 
-    #[derive(Encode, Decode, Debug, PartialEq, Eq, Copy, Clone)]
+    #[derive(Encode, Decode, Debug, PartialEq, Eq, Clone)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Error {
         InvalidUrl,
@@ -47,8 +47,8 @@ mod fat_sample {
         InvalidAddress,
         NoPermission,
         InvalidSignature,
-        UsernameAlreadyInUse,
-        AccountAlreadyInUse,
+        UsernameAlreadyInUse(AccountId),
+        AccountAlreadyInUse(String),
     }
 
     impl FatSample {
@@ -81,6 +81,10 @@ mod fat_sample {
             // Hint: get the metadata about the contract through self.env()
 
             // Update the code
+            if self.admin != self.env().caller() {
+                return Err(Error::NoPermission);
+            }
+
             self.poap_code = code;
             Ok(())
         }
@@ -101,16 +105,22 @@ mod fat_sample {
                 return Err(Error::NoPermission);
             }
 
+            let account:AccountId = attestation.account_id;
             let username = attestation.username;
-            let account = attestation.account_id;
             // TODO: add logic to prevent double redemptions
             //
             // Hint: both the username and the account are allowed to be used only ONCE
-
+            if let Some(used_username) = self.username_by_account.get(account){
+                return Err(Error::AccountAlreadyInUse(used_username))
+            }
+            if let Some(used_account) =  self.account_by_username.get(username.clone()){
+                return Err(Error::UsernameAlreadyInUse(used_account))
+            }
+            self.account_by_username.insert(username.clone(),&account);
+            self.username_by_account.insert(account.clone(), &username);
             self.redeem_by_account
                 .insert(&account, &self.total_redeemed);
             self.total_redeemed += 1;
-
             Ok(())
         }
 
@@ -142,7 +152,7 @@ mod fat_sample {
         /// is owned by address: 0x..."). Once the claim is verified, it returns a signed
         /// attestation with the pair `(github_username, account_id)`.
         #[ink(message)]
-        pub fn attest_gist(&self, url: String) -> Result<SignedAttestation, Error> {
+        pub fn attest_gist(&mut self, url: String) -> Result<SignedAttestation, Error> {
             // Verify the URL
             let gist_url = parse_gist_url(&url)?;
             // Fetch the gist content
@@ -246,14 +256,14 @@ mod fat_sample {
         Ok(AccountId::from(bytes))
     }
 
-    #[derive(Encode, Decode, Debug)]
+    #[derive(Encode, Decode, Debug, Clone)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub struct Attestation {
         username: String,
         account_id: AccountId,
     }
 
-    #[derive(Encode, Decode, Debug)]
+    #[derive(Encode, Decode, Debug, Clone)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub struct SignedAttestation {
         attestation: Attestation,
@@ -297,7 +307,7 @@ mod fat_sample {
                     <[u8; 32]>::from_hex(
                         "0123456789012345678901234567890123456789012345678901234567890123"
                     )
-                    .unwrap()
+                        .unwrap()
                 ))
             );
             // Bad cases
@@ -390,7 +400,7 @@ mod fat_sample {
             // Before redeem
             assert_eq!(contract.my_poap(), None);
             // Redeem
-            assert!(contract.redeem(attestation).is_ok());
+            assert!(contract.redeem(attestation.clone()).is_ok());
             assert_eq!(contract.total_redeemed, 1);
             assert_eq!(
                 contract.account_by_username.get("h4x3rotab".to_string()),
@@ -402,7 +412,10 @@ mod fat_sample {
             );
             assert_eq!(contract.redeem_by_account.get(accounts.alice), Some(0));
             // Check my redemption code
-            assert_eq!(contract.my_poap(), Some("code0".to_string()))
+            assert_eq!(contract.my_poap(), Some("code0".to_string()));
+
+            //check double redeem
+            assert!(contract.redeem(attestation).is_err())
         }
     }
 }
