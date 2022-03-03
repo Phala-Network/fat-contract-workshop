@@ -152,7 +152,7 @@ mod fat_sample {
         /// is owned by address: 0x..."). Once the claim is verified, it returns a signed
         /// attestation with the pair `(github_username, account_id)`.
         #[ink(message)]
-        pub fn attest_gist(&mut self, url: String) -> Result<SignedAttestation, Error> {
+        pub fn attest_gist(&self, url: String) -> Result<SignedAttestation, Error> {
             // Verify the URL
             let gist_url = parse_gist_url(&url)?;
             // Fetch the gist content
