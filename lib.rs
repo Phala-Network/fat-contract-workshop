@@ -1,19 +1,19 @@
 #![cfg_attr(not(feature = "std"), no_std)]
-extern crate alloc;
+#![feature(trace_macros)]
 
 use pink_extension as pink;
 
 #[pink::contract(env=PinkEnvironment)]
 mod fat_sample {
     use super::pink;
-    use alloc::{
+    use ink_prelude::{
         string::{String, ToString},
         vec::Vec,
     };
     use ink_storage::{traits::SpreadAllocate, Mapping};
     use pink::{
-        chain_extension::SigType, derive_sr25519_key, get_public_key, http_get, sign, verify,
-        PinkEnvironment,
+        chain_extension::{signing, SigType},
+        http_get, PinkEnvironment,
     };
     use scale::{Decode, Encode};
 
@@ -55,8 +55,8 @@ mod fat_sample {
         #[ink(constructor)]
         pub fn default() -> Self {
             // Generate a Sr25519 key pair
-            let privkey = derive_sr25519_key!(b"gist-attestation-key");
-            let pubkey = get_public_key!(&privkey, SigType::Sr25519);
+            let privkey = signing::derive_sr25519_key(b"gist-attestation-key");
+            let pubkey = signing::get_public_key(&privkey, SigType::Sr25519);
             // Save sender as the contract admin
             let admin = Self::env().caller();
 
@@ -164,7 +164,7 @@ mod fat_sample {
         /// Signs the `attestation` with the attestation key pair.
         pub fn sign_attestation(&self, attestation: Attestation) -> SignedAttestation {
             let encoded = Encode::encode(&attestation);
-            let signature = sign!(&encoded, &self.attestation_privkey, SigType::Sr25519);
+            let signature = signing::sign(&encoded, &self.attestation_privkey, SigType::Sr25519);
             SignedAttestation {
                 attestation,
                 signature,
@@ -174,11 +174,11 @@ mod fat_sample {
         /// Verifies the signed attestation and return the inner data.
         pub fn verify_attestation(&self, signed: SignedAttestation) -> Result<Attestation, Error> {
             let encoded = Encode::encode(&signed.attestation);
-            if !verify!(
+            if !signing::verify(
                 &encoded,
                 &self.attestation_pubkey,
                 &signed.signature,
-                SigType::Sr25519
+                SigType::Sr25519,
             ) {
                 return Err(Error::InvalidSignature);
             }
