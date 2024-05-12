@@ -256,7 +256,7 @@ Please check the `ethdenver-2022-solution` branch.
     - [Scalffold docs](https://github.com/Phala-Network/js-sdk/tree/main/packages/example)
 - [ink! Docs](https://paritytech.github.io/ink-docs/)
 - [Polkadot.js Docs](https://polkadot.js.org/docs)
-- Join [Discord](https://discord.gg/phala) #dev and #hackathon groups!
+- Join [Discord](https://discord.gg/phala-network) #dev and #hackathon groups!
 ### Endpoints
 
 - Chain: `wss://poc5.phala.network/ws`
