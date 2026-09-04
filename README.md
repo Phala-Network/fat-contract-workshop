@@ -52,7 +52,7 @@ Your contract will be finally deployed to our off-chain Secure Workers. You will
   - Worker `0x94a2ded4c77fbb910943f7e452e4d243ee5b60bf1a838a911acf2ffd4bae9b63`
     - Endpoint `https://poc5.phala.network/tee-api-1`
 
-> Note that the node endpoint is generally stable, while the available cluster and Secure Workers can change due to Testnet update. Report in the #dev channel of our [Discord](https://discord.gg/myBmQu5) if they are down.
+> Note that the node endpoint is generally stable, while the available cluster and Secure Workers can change due to Testnet update. Report in the #dev channel of our [Discord](https://phala.com/discord) if they are down.
 
 ## Environment Preparation
 
@@ -158,7 +158,7 @@ A event of `phalaFatContracts.CodeUploaded` should be observed in the block expl
 
 ![](./static/tutor-uploaded.png)
 
-> Code upload could failed if there are *illegal* instructions in your compiled wasm. Report in the #dev channel of our [Discord](https://discord.gg/myBmQu5) and we will help you find the reason.
+> Code upload could failed if there are *illegal* instructions in your compiled wasm. Report in the #dev channel of our [Discord](https://phala.com/discord) and we will help you find the reason.
 
 ### Contract Instantiation
 
@@ -191,7 +191,7 @@ You can go to `Developer` - `Chain state` and select the extrinsic `phalaFatCont
 
 > ### Handle Instantiation Failure
 >
-> For now, the contract execution log is not directly available to the developers. Join our [Discord](https://discord.gg/myBmQu5) and we can help forward the Worker logs if necessary.
+> For now, the contract execution log is not directly available to the developers. Join our [Discord](https://phala.com/discord) and we can help forward the Worker logs if necessary.
 
 ## Run the Frontend
 
